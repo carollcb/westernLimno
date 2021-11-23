@@ -33,3 +33,5 @@ vignettes/*.pdf
 /wc0.5
 /wc10
 /MSR_50M
+# Ignore .html output
+*.html
