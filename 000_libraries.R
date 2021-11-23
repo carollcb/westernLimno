@@ -1,0 +1,16 @@
+# usethis::use_blank_slate()
+# renv::init()
+library(renv)
+library(here)
+library(tibble)
+library(tidyverse)
+library(nlaR)
+library(lubridate)
+
+
+library(ggplot2)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(rgeos)
+library(colorspace)

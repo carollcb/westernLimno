@@ -1,0 +1,711 @@
+---
+title: "001_EPA_explore"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+#Load data
+```{r setup, include=FALSE}
+#Load data
+
+# nla_2017 <- read.csv(here("data/NLA/data/nla_2017_water_chemistry_chla-data.txt"))
+# nla_2012 <- read.csv(here("data/NLA/data/nla2012_waterchem_wide.txt"))
+# nla_2007 <- read.csv(here("data/NLA/data/nla2007_chemical_conditionestimates_20091123.txt"))
+# 
+# glimpse(nla_2007)
+# 
+# nla_2007_trim <- nla_2007 %>%
+#   select(SITE_ID, VISIT_NO, SITE_TYPE, TNT,
+#          LAT_DD, LON_DD, ST, NUTREG_NAME,
+#          ECO3_X_ORIGIN, HUC_2, HUC_8,
+#          PTL:COND, CHLA) %>%
+#   rename(TP_ugL=PTL,
+#          TN_ugL=NTL,
+#          DOC_mgL=DOC)
+
+
+source_folder <- nla_get(2012)
+dt_2012 <- nla_load(2012, source_folder = source_folder)
+
+source_folder2 <- nla_get(2007)
+dt_2007 <- nla_load(2007, source_folder = source_folder2)
+
+
+waterchem_2007 <- dt_2007$WaterQuality
+waterchem_2012 <- dt_2012$waterchem_wide
+siteinfo_2012 <- dt_2012$wide_siteinfo
+chla_2012 <- dt_2012$chla_wide
+
+glimpse(waterchem_2007)
+glimpse(waterchem_2012)
+glimpse(siteinfo_2012)
+glimpse(chla_2012)
+
+
+##Compile 2012 data
+siteinfo_2012_western <- siteinfo_2012 %>%
+  filter(STATE %in% c("CA", "UT", "NV",
+                      "WA", "OR", "ID",
+                      "MT", "WY", "CO",
+                      "NM", "AZ")) %>%
+  select(SITE_ID, SITEID_07, VISIT_NO,
+         UID, DATE_COL, AREA_HA, CAT_UNIQUE,
+         EPA_REG, HUC2, HUC8, LAKE_ORIGIN, LAKE_ORIGIN12,
+         LAT_DD83, LON_DD83, MAJ_BASIN, SIZE_CLASS)
+
+waterchem_2012_trim <- waterchem_2012 %>%
+  select(UID, DOC_RESULT, NITRATE_N_RESULT,
+         NTL_RESULT, PTL_RESULT, TURB_RESULT)
+
+chla_2012_trim<- chla_2012 %>%
+  select(UID, CHLX_RESULT)
+
+
+nla2012 <- left_join(siteinfo_2012_western, waterchem_2012_trim, by="UID")
+nla2012 <- left_join(nla2012, chla_2012_trim, by="UID")
+
+glimpse(nla2012)
+
+###Compile 2007 data
+waterchem_2007_trim <- waterchem_2007 %>%
+  dplyr::select(SITE_ID, DATE_COL, DOC, NTL, PTL,
+         TURB, NO3, CHLA, SECMEAN, NO3N_PPM)
+chemconditions_2007 <- dt_2007$Chemical_ConditionEstimates 
+# glimpse(chemconditions_2007)
+chemconditions_2007_trim <- chemconditions_2007 %>%
+  dplyr::select(SITE_ID, LAT_DD, LON_DD, LAKE_ORIGIN, HUC_2,
+         HUC_8, PTL, NTL, DOC, TURB, CHLA) %>%
+  rename(PTL_2=PTL,
+         NTL_2=NTL,
+         DOC_2=DOC,
+         TURB_2=TURB,
+         CHLA_2=CHLA)
+siteinfo_2007<- dt_2007$SampledLakeInformation
+glimpse(siteinfo_2007)
+siteinfo_2007_trim <- siteinfo_2007 %>%
+  dplyr::select(SITE_ID, ST, DATE_COL, NHDNAME, AREA_HA, SIZE_CLASS, LAKEAREA,
+         LAKEPERIM, DEPTHMAX, DEPTH_X, ELEV_PT) %>%
+    filter(ST %in% c("CA", "UT", "NV",
+                      "WA", "OR", "ID",
+                      "MT", "WY", "CO",
+                      "NM", "AZ")) 
+
+nla2007<- left_join(siteinfo_2007_trim, chemconditions_2007_trim, by="SITE_ID")
+nla2007<- left_join(nla2007,waterchem_2007_trim, by=c("SITE_ID","DATE_COL"))
+```
+
+
+#Maps - 2007 data
+##Basic distribution, size, and lake types
+```{r}
+#Map 2012 western NLA sites
+
+northamerica<- ne_countries(country = "united states of america", returnclass= "sf")
+ggplot(data = northamerica) +
+  geom_sf() +
+  labs( x = "Longitude", y = "Latitude") +
+  coord_sf(
+    xlim = c(-130, -100),
+           ylim = c(30, 50)) +
+  geom_point(data=nla2007,aes(LON_DD,LAT_DD,fill=factor(HUC_2)),
+             shape=21, color="black", size=3)+
+  scale_fill_discrete_diverging(rev=TRUE,
+                                 labels=basinNames)+
+  ggtitle("2007 Lakes Sampled")
+
+# ggplot(data = northamerica) +
+#   geom_sf() +
+#   labs( x = "Longitude", y = "Latitude") +
+#   coord_sf(
+#     xlim = c(-130, -100),
+#     ylim = c(30, 50)) +
+#   geom_point(data=nla2012,aes(LON_DD83,LAT_DD83,fill=SIZE_CLASS),
+#              shape=21, color="black")+
+#   scale_fill_discrete_sequential(palette = "Terrain", rev=TRUE)
+
+
+#How many of these lakes are reservoirs?  
+nla2007 %>%
+  select(HUC_2,LAKE_ORIGIN) %>%
+  # filter(LAKE_ORIGIN %in% c("MAN_MADE","NATURAL"))%>%
+  group_by(HUC_2,LAKE_ORIGIN)%>%
+  mutate(num_lakes=n()) %>%
+  distinct() %>% #remove duplicates
+  ggplot(aes(x=LAKE_ORIGIN, y=num_lakes, fill=factor(HUC_2)))+
+  geom_bar(stat="identity",  color="black")+
+  ylab("Number of lakes")+
+  xlab("Lake type")+
+  facet_wrap(.~factor(HUC_2), scales="free_y",
+              labeller = labeller(name = basin.Names))+
+  scale_fill_discrete_diverging(rev=TRUE,
+                                labels=basinNames)+
+  ggtitle("Lake origin by major basin")
+
+#Lakes of different size classes
+nla2007 %>%
+  select(SIZE_CLASS) %>%
+  filter(!SIZE_CLASS=="")%>%
+  # pivot_longer(-1) %>%
+  group_by(SIZE_CLASS) %>%
+  mutate(num_lakes=n()) %>%
+  distinct() %>% #remove duplicates
+  ggplot(aes(x=SIZE_CLASS, y=num_lakes, fill=SIZE_CLASS))+
+  geom_bar(stat="identity",  color="black")+
+  # scale_fill_manual(values=c("#d62828","#003049"))+
+  ylab("Number of lakes")+
+  xlab("Size class")+
+  # geom_text(aes(label=load_calc_possible_n), vjust=-1) +
+  theme(legend.position="none")+
+  ggtitle("2007 - Number of lakes by size class")
+
+```
+
+
+##Chemistry
+###Chlorophyll by lake type, size, basin
+```{r}
+#Chlorophyll across lakes with data
+ggplot(data = northamerica) +
+  geom_sf() +
+  labs( x = "Longitude", y = "Latitude") +
+  coord_sf(
+    xlim = c(-125, -100),
+    ylim = c(30, 50)) +
+  geom_point(data=nla2007 %>%
+               filter(LAKE_ORIGIN %in% c("MAN-MADE","NATURAL")),
+                                  aes(LON_DD,LAT_DD,
+                                   fill=log10(CHLA),
+                                   shape=LAKE_ORIGIN),
+             color="black", size=3, alpha=0.9)+
+  scale_fill_continuous_sequential(palette = "Greens", rev=TRUE)+
+  scale_shape_manual(values=c(21,23))
+
+#Chlorophyll in lakes of different size classes
+#Lakes of different size classes
+nla2007 %>%
+  select(SIZE_CLASS, CHLA, LAKE_ORIGIN) %>%
+  filter(!SIZE_CLASS %in% c(""))%>%
+  # pivot_longer(-1) %>%
+  # distinct() %>% #remove duplicates
+  ggplot(aes(x=LAKE_ORIGIN, y=log10(CHLA), fill=LAKE_ORIGIN))+
+  geom_boxplot()+
+  # scale_fill_manual(values=c("#d62828","#003049"))+
+  ylab("Log10 chlorophyll a")+
+  xlab("Lake type")+
+  scale_fill_discrete_sequential(palette = "Greens", rev=TRUE)+
+  facet_wrap(.~SIZE_CLASS, ncol=5)+
+  stat_summary(fun.data = give.n, geom = "text", fun.y = median,
+               position = position_dodge(width = 0.75)) 
+
+
+
+#Chlorophyll in lakes of different major basins
+nla2007 %>%
+  select(HUC_2, CHLA,LAKE_ORIGIN) %>%
+  filter(!HUC_2 %in% c(""))%>%
+  mutate(HUC_2=factor(HUC_2,
+                      labels=c("Missouri","Ark-Red-White", "Rio Grande",
+                 "Upper Colorado","Lower Colorado","Great Basin","Pacific Northwest",
+                 "California"))) %>%
+  ggplot(aes(x=LAKE_ORIGIN, y=log10(CHLA), fill=LAKE_ORIGIN))+
+  geom_boxplot()+
+  ylab("Log10 chlorophyll a")+
+  xlab("Major basins")+
+  scale_fill_discrete_sequential(palette = "Terrain2", rev=TRUE)+
+  facet_wrap(.~HUC_2, ncol=5, labeller = labeller(names=basin.Names))+
+  stat_summary(fun.data = give.n, geom = "text", fun.y = median,
+               position = position_dodge(width = 0.75)) 
+```
+
+###DOC by lake type, size, basin
+```{r}
+#DOC across lakes with data
+ggplot(data = northamerica) +
+  geom_sf() +
+  labs( x = "Longitude", y = "Latitude") +
+  coord_sf(
+    xlim = c(-125, -100),
+    ylim = c(30, 50)) +
+  geom_point(data=nla2007 %>%
+               filter(LAKE_ORIGIN %in% c("MAN-MADE","NATURAL")),
+                                  aes(LON_DD,LAT_DD,
+                                   fill=log10(DOC),
+                                   shape=LAKE_ORIGIN),
+             color="black", size=3, alpha=0.9)+
+  scale_fill_continuous_sequential(palette = "Terrain", rev=TRUE)+
+  scale_shape_manual(values=c(21,23))
+
+
+#Chlorophyll in lakes of different size classes
+#Lakes of different size classes
+nla2007 %>%
+  select(SIZE_CLASS, DOC, LAKE_ORIGIN) %>%
+  filter(!SIZE_CLASS %in% c(""))%>%
+  ggplot(aes(x=LAKE_ORIGIN, y=log10(DOC), fill=LAKE_ORIGIN))+
+  geom_boxplot()+
+  ylab("Log10 DOC")+
+  xlab("Lake type")+
+  scale_fill_discrete_sequential(palette = "Terrain", rev=TRUE)+
+  facet_wrap(.~SIZE_CLASS, ncol=5)+
+  stat_summary(fun.data = give.n, geom = "text", fun.y = median,
+               position = position_dodge(width = 0.75)) 
+
+
+
+#DOC in lakes of different major basins
+nla2007 %>%
+  select(HUC_2, DOC,LAKE_ORIGIN) %>%
+  filter(!HUC_2 %in% c(""))%>%
+  mutate(HUC_2=factor(HUC_2,
+                      labels=c("Missouri","Ark-Red-White", "Rio Grande",
+                 "Upper Colorado","Lower Colorado","Great Basin","Pacific Northwest",
+                 "California"))) %>%
+  ggplot(aes(x=LAKE_ORIGIN, y=log10(DOC), fill=LAKE_ORIGIN))+
+  geom_boxplot()+
+    stat_summary(fun.data = give.n, geom = "text", fun.y = median,
+               position = position_dodge(width = 0.75)) +
+  ylab("Log10 DOC")+
+  xlab("Major basins")+
+  scale_fill_discrete_sequential(palette = "Terrain", rev=TRUE)+
+  facet_wrap(.~HUC_2, ncol=5)
+
+```
+
+### TN by lake type, size, basin
+```{r}
+#TN in lakes of different major basins
+ggplot(data = northamerica) +
+  geom_sf() +
+  labs( x = "Longitude", y = "Latitude") +
+  coord_sf(
+    xlim = c(-125, -100),
+    ylim = c(30, 50)) +
+  geom_point(data=nla2007 %>%
+               filter(LAKE_ORIGIN %in% c("MAN-MADE","NATURAL")),
+                                  aes(LON_DD,LAT_DD,
+                                   fill=log10(NTL),
+                                   shape=LAKE_ORIGIN),
+             color="black", size=3, alpha=0.9)+
+  scale_fill_continuous_sequential(palette = "Blues", rev=TRUE)+
+  scale_shape_manual(values=c(21,23))
+
+
+#TN in lakes of different size classes
+#Lakes of different size classes
+nla2007 %>%
+  filter(!SIZE_CLASS %in% c(""))%>%
+  ggplot(aes(x=LAKE_ORIGIN, y=log10(NTL), fill=LAKE_ORIGIN))+
+  geom_boxplot()+
+  ylab("Log10 TN")+
+  xlab("Lake type")+
+  scale_fill_discrete_sequential(palette = "Blues", rev=TRUE)+
+  facet_wrap(.~SIZE_CLASS, ncol=6)+
+  stat_summary(fun.data = give.n, geom = "text", fun.y = median,
+               position = position_dodge(width = 0.75)) 
+
+#TN in lakes of different major basins
+nla2007 %>%
+  select(HUC_2, NTL,LAKE_ORIGIN) %>%
+  filter(!HUC_2 %in% c(""))%>%
+  mutate(HUC_2=factor(HUC_2,
+                      labels=c("Missouri","Ark-Red-White", "Rio Grande",
+                 "Upper Colorado","Lower Colorado","Great Basin","Pacific Northwest",
+                 "California"))) %>%
+  ggplot(aes(x=LAKE_ORIGIN, y=log10(NTL), fill=LAKE_ORIGIN))+
+  geom_boxplot()+
+    stat_summary(fun.data = give.n, geom = "text", fun.y = median,
+               position = position_dodge(width = 0.75)) +
+  # scale_fill_manual(values=c("#d62828","#003049"))+
+  ylab("Log10 TN")+
+  xlab("Major basins")+
+  scale_fill_discrete_sequential(palette = "Blues", rev=TRUE)+
+  facet_wrap(.~HUC_2, ncol=5)
+```
+
+###TP by lake type, size, basin
+```{r}
+#TP in lakes of different major basins
+ggplot(data = northamerica) +
+  geom_sf() +
+  labs( x = "Longitude", y = "Latitude") +
+  coord_sf(
+    xlim = c(-125, -100),
+    ylim = c(30, 50)) +
+  geom_point(data=nla2007 %>%
+               filter(LAKE_ORIGIN %in% c("MAN-MADE","NATURAL")),
+                                  aes(LON_DD,LAT_DD,
+                                   fill=log10(PTL),
+                                   shape=LAKE_ORIGIN),
+             color="black", size=3, alpha=0.9)+
+  scale_fill_continuous_sequential(palette = "Purple", rev=TRUE)+
+  scale_shape_manual(values=c(21,23))
+
+
+#TP in lakes of different size classes
+nla2007 %>%
+  filter(!SIZE_CLASS %in% c(""))%>%
+  ggplot(aes(x=LAKE_ORIGIN, y=log10(PTL), fill=LAKE_ORIGIN))+
+  geom_boxplot()+
+  ylab("Log10 TP")+
+  xlab("Lake type")+
+  scale_fill_discrete_sequential(palette = "Purple", rev=TRUE)+
+  facet_wrap(.~SIZE_CLASS, ncol=6)+
+    stat_summary(fun.data = give.n, geom = "text", fun.y = median,
+               position = position_dodge(width = 0.75)) 
+
+#TP in lakes of different size classes
+nla2007 %>%
+  ggplot(aes(x=DEPTHMAX, y=log10(PTL), fill=LAKE_ORIGIN))+
+  geom_point(shape=21, size=3)+
+  ylab("Log10 TP")+
+  xlab("Max depth (m)")+
+  scale_fill_discrete_sequential(palette = "Purple", rev=TRUE)
+
+
+#TP in lakes of different major basins
+nla2007 %>%
+  select(HUC_2, PTL,LAKE_ORIGIN) %>%
+  filter(!HUC_2 %in% c(""))%>%
+  mutate(HUC_2=factor(HUC_2,
+                      labels=c("Missouri","Ark-Red-White", "Rio Grande",
+                 "Upper Colorado","Lower Colorado","Great Basin","Pacific Northwest",
+                 "California"))) %>%
+  ggplot(aes(x=LAKE_ORIGIN, y=log10(PTL), fill=LAKE_ORIGIN))+
+  geom_boxplot()+
+    stat_summary(fun.data = give.n, geom = "text", fun.y = median,
+               position = position_dodge(width = 0.75)) +
+  ylab("Log10 TP")+
+  xlab("Major basins")+
+  scale_fill_discrete_sequential(palette = "Purple", rev=TRUE)+
+  facet_wrap(.~HUC_2, ncol=6)
+```
+
+
+
+#Maps - 2012 data
+##Basic distribution, size, and lake types
+```{r}
+#Map 2012 western NLA sites
+
+northamerica<- ne_countries(country = "united states of america", returnclass= "sf")
+ggplot(data = northamerica) +
+  geom_sf() +
+  labs( x = "Longitude", y = "Latitude") +
+  coord_sf(
+    xlim = c(-130, -100),
+           ylim = c(30, 50)) +
+  geom_point(data=nla2012,aes(LON_DD83,LAT_DD83,fill=MAJ_BASIN),
+             shape=21, color="black", size=3)+
+  scale_fill_discrete_diverging(rev=TRUE,
+                                 labels=basinNames)+
+  ggtitle("Western US NLA lakes")+
+  theme_bw()
+
+# ggplot(data = northamerica) +
+#   geom_sf() +
+#   labs( x = "Longitude", y = "Latitude") +
+#   coord_sf(
+#     xlim = c(-130, -100),
+#     ylim = c(30, 50)) +
+#   geom_point(data=nla2012,aes(LON_DD83,LAT_DD83,fill=SIZE_CLASS),
+#              shape=21, color="black")+
+#   scale_fill_discrete_sequential(palette = "Terrain", rev=TRUE)
+
+
+#How many of these lakes are reservoirs?  
+nla2012 %>%
+  select(MAJ_BASIN,LAKE_ORIGIN) %>%
+  filter(LAKE_ORIGIN %in% c("MAN_MADE","NATURAL"))%>%
+  group_by(MAJ_BASIN,LAKE_ORIGIN)%>%
+  mutate(num_lakes=n()) %>%
+  distinct() %>% #remove duplicates
+  ggplot(aes(x=LAKE_ORIGIN, y=num_lakes, fill=MAJ_BASIN))+
+  geom_bar(stat="identity",  color="black")+
+  ylab("Number of lakes")+
+  xlab("Lake type")+
+  facet_wrap(.~MAJ_BASIN, scales="free_y")+
+  scale_fill_discrete_diverging(rev=TRUE,
+                                labels=basinNames)+
+  ggtitle("Lake origin by major basin")
+
+#Lakes of different size classes
+nla2012 %>%
+  select(SIZE_CLASS) %>%
+  filter(!SIZE_CLASS=="")%>%
+  # pivot_longer(-1) %>%
+  group_by(SIZE_CLASS) %>%
+  mutate(num_lakes=n()) %>%
+  distinct() %>% #remove duplicates
+  ggplot(aes(x=SIZE_CLASS, y=num_lakes, fill=SIZE_CLASS))+
+  geom_bar(stat="identity",  color="black")+
+  # scale_fill_manual(values=c("#d62828","#003049"))+
+  ylab("Number of lakes")+
+  xlab("Size class")+
+  # geom_text(aes(label=load_calc_possible_n), vjust=-1) +
+  theme(legend.position="none")+
+  ggtitle("Number of lakes by size class")
+
+
+#How many fewer sites do we have if we omit the lakes without DOC, TN, TP data?
+nla2012_bare <- nla2012 %>%
+  drop_na(CHLX_RESULT)
+```
+
+##Chemistry
+###Chlorophyll by lake type, size, basin
+```{r}
+#Chlorophyll across lakes with data
+ggplot(data = northamerica) +
+  geom_sf() +
+  labs( x = "Longitude", y = "Latitude") +
+  coord_sf(
+    xlim = c(-125, -100),
+    ylim = c(30, 50)) +
+  geom_point(data=nla2012_bare %>%
+               filter(LAKE_ORIGIN %in% c("MAN_MADE","NATURAL")),
+                                  aes(LON_DD83,LAT_DD83,
+                                   fill=log10(CHLX_RESULT),
+                                   shape=LAKE_ORIGIN),
+             color="black", size=3, alpha=0.9)+
+  scale_fill_continuous_sequential(palette = "Greens", rev=TRUE)+
+  scale_shape_manual(values=c(21,23))
+
+#Chlorophyll in lakes of different size classes
+#Lakes of different size classes
+nla2012_bare %>%
+  select(SIZE_CLASS, CHLX_RESULT, LAKE_ORIGIN) %>%
+  filter(!SIZE_CLASS %in% c(""))%>%
+  # pivot_longer(-1) %>%
+  # distinct() %>% #remove duplicates
+  ggplot(aes(x=LAKE_ORIGIN, y=log10(CHLX_RESULT), fill=LAKE_ORIGIN))+
+  geom_boxplot()+
+  # scale_fill_manual(values=c("#d62828","#003049"))+
+  ylab("Log10 chlorophyll a")+
+  xlab("Lake type")+
+  scale_fill_discrete_sequential(palette = "Greens", rev=TRUE)+
+  facet_wrap(.~SIZE_CLASS, ncol=5)
+
+
+
+#Chlorophyll in lakes of different major basins
+nla2012_bare %>%
+  select(MAJ_BASIN, CHLX_RESULT,LAKE_ORIGIN) %>%
+  filter(!MAJ_BASIN %in% c(""))%>%
+  # pivot_longer(-1) %>%
+  # distinct() %>% #remove duplicates
+  ggplot(aes(x=LAKE_ORIGIN, y=log10(CHLX_RESULT), fill=LAKE_ORIGIN))+
+  geom_boxplot()+
+  # scale_fill_manual(values=c("#d62828","#003049"))+
+  ylab("Log10 chlorophyll a")+
+  xlab("Major basins")+
+  scale_fill_discrete_sequential(palette = "Terrain2", rev=TRUE)+
+  facet_wrap(.~MAJ_BASIN, ncol=5)
+```
+
+###DOC by lake type, size, basin
+```{r}
+#DOC across lakes with data
+ggplot(data = northamerica) +
+  geom_sf() +
+  labs( x = "Longitude", y = "Latitude") +
+  coord_sf(
+    xlim = c(-125, -100),
+    ylim = c(30, 50)) +
+  geom_point(data=nla2012_bare %>%
+               filter(LAKE_ORIGIN %in% c("MAN_MADE","NATURAL")),
+                                  aes(LON_DD83,LAT_DD83,
+                                   fill=log10(DOC_RESULT),
+                                   shape=LAKE_ORIGIN),
+             color="black", size=3, alpha=0.9)+
+  scale_fill_continuous_sequential(palette = "Terrain", rev=TRUE)+
+  scale_shape_manual(values=c(21,23))
+
+
+#Chlorophyll in lakes of different size classes
+#Lakes of different size classes
+nla2012_bare %>%
+  select(SIZE_CLASS, DOC_RESULT, LAKE_ORIGIN) %>%
+  filter(!SIZE_CLASS %in% c(""))%>%
+  # pivot_longer(-1) %>%
+  # distinct() %>% #remove duplicates
+  ggplot(aes(x=LAKE_ORIGIN, y=log10(DOC_RESULT), fill=LAKE_ORIGIN))+
+  geom_boxplot()+
+  # scale_fill_manual(values=c("#d62828","#003049"))+
+  ylab("Log10 DOC")+
+  xlab("Lake type")+
+  scale_fill_discrete_sequential(palette = "Terrain", rev=TRUE)+
+  facet_wrap(.~SIZE_CLASS, ncol=5)
+
+
+
+#DOC in lakes of different major basins
+nla2012_bare %>%
+  select(MAJ_BASIN, DOC_RESULT,LAKE_ORIGIN) %>%
+  filter(!MAJ_BASIN %in% c(""))%>%
+  # pivot_longer(-1) %>%
+  # distinct() %>% #remove duplicates
+  ggplot(aes(x=LAKE_ORIGIN, y=log10(DOC_RESULT), fill=LAKE_ORIGIN))+
+  geom_boxplot()+
+    stat_summary(fun.data = give.n, geom = "text", fun.y = median,
+               position = position_dodge(width = 0.75)) +
+  # scale_fill_manual(values=c("#d62828","#003049"))+
+  ylab("Log10 DOC")+
+  xlab("Major basins")+
+  scale_fill_discrete_sequential(palette = "Terrain", rev=TRUE)+
+  facet_wrap(.~MAJ_BASIN, ncol=5)
+
+```
+
+### TN by lake type, size, basin
+```{r}
+#TN in lakes of different major basins
+ggplot(data = northamerica) +
+  geom_sf() +
+  labs( x = "Longitude", y = "Latitude") +
+  coord_sf(
+    xlim = c(-125, -100),
+    ylim = c(30, 50)) +
+  geom_point(data=nla2012_bare %>%
+               filter(LAKE_ORIGIN %in% c("MAN_MADE","NATURAL")),
+                                  aes(LON_DD83,LAT_DD83,
+                                   fill=log10(NTL_RESULT),
+                                   shape=LAKE_ORIGIN),
+             color="black", size=3, alpha=0.9)+
+  scale_fill_continuous_sequential(palette = "Blues", rev=TRUE)+
+  scale_shape_manual(values=c(21,23))
+
+
+#TN in lakes of different size classes
+#Lakes of different size classes
+nla2012_bare %>%
+  filter(!SIZE_CLASS %in% c(""))%>%
+  ggplot(aes(x=LAKE_ORIGIN, y=log10(NTL_RESULT), fill=LAKE_ORIGIN))+
+  geom_boxplot()+
+  # scale_fill_manual(values=c("#d62828","#003049"))+
+  ylab("Log10 TN")+
+  xlab("Lake type")+
+  scale_fill_discrete_sequential(palette = "Blues", rev=TRUE)+
+  facet_wrap(.~SIZE_CLASS, ncol=5)
+
+#TN in lakes of different major basins
+nla2012_bare %>%
+  select(MAJ_BASIN, NTL_RESULT,LAKE_ORIGIN) %>%
+  filter(!MAJ_BASIN %in% c(""))%>%
+  # pivot_longer(-1) %>%
+  # distinct() %>% #remove duplicates
+  ggplot(aes(x=LAKE_ORIGIN, y=log10(NTL_RESULT), fill=LAKE_ORIGIN))+
+  geom_boxplot()+
+    stat_summary(fun.data = give.n, geom = "text", fun.y = median,
+               position = position_dodge(width = 0.75)) +
+  # scale_fill_manual(values=c("#d62828","#003049"))+
+  ylab("Log10 TN")+
+  xlab("Major basins")+
+  scale_fill_discrete_sequential(palette = "Blues", rev=TRUE)+
+  facet_wrap(.~MAJ_BASIN, ncol=5)
+```
+
+###TP by lake type, size, basin
+```{r}
+#TP in lakes of different major basins
+ggplot(data = northamerica) +
+  geom_sf() +
+  labs( x = "Longitude", y = "Latitude") +
+  coord_sf(
+    xlim = c(-125, -100),
+    ylim = c(30, 50)) +
+  geom_point(data=nla2012_bare %>%
+               filter(LAKE_ORIGIN %in% c("MAN_MADE","NATURAL")),
+                                  aes(LON_DD83,LAT_DD83,
+                                   fill=log10(PTL_RESULT),
+                                   shape=LAKE_ORIGIN),
+             color="black", size=3, alpha=0.9)+
+  scale_fill_continuous_sequential(palette = "Purple", rev=TRUE)+
+  scale_shape_manual(values=c(21,23))
+
+
+#TP in lakes of different size classes
+nla2012_bare %>%
+  filter(!SIZE_CLASS %in% c(""))%>%
+  mutate(LAKE_ORIGIN=factor(LAKE_ORIGIN,
+                            labels=c("Res.","Natural"))) %>%
+  ggplot(aes(x=LAKE_ORIGIN, y=log10(PTL_RESULT), fill=LAKE_ORIGIN))+
+  geom_boxplot()+
+      stat_summary(fun.data = give.n, geom = "text", fun.y = median,
+               position = position_dodge(width = 0.75)) +
+  ylab("Log10 TP")+
+  xlab("Lake type")+
+  scale_fill_discrete_sequential(palette = "Purple", rev=TRUE)+
+  facet_wrap(.~SIZE_CLASS, ncol=5)+
+  theme_bw()+
+  theme(legend.position="none")
+
+#TP in lakes of different major basins
+nla2012_bare %>%
+  select(MAJ_BASIN, PTL_RESULT,LAKE_ORIGIN) %>%
+  filter(!MAJ_BASIN %in% c(""))%>%
+  # pivot_longer(-1) %>%
+  # distinct() %>% #remove duplicates
+  ggplot(aes(x=LAKE_ORIGIN, y=log10(PTL_RESULT), fill=LAKE_ORIGIN))+
+  geom_boxplot()+
+  stat_summary(fun.data = give.n, geom = "text", fun.y = median,
+               position = position_dodge(width = 0.75)) +
+  # scale_fill_manual(values=c("#d62828","#003049"))+
+  ylab("Log10 TP")+
+  xlab("Major basins")+
+  scale_fill_discrete_sequential(palette = "Purple", rev=TRUE)+
+  facet_wrap(.~MAJ_BASIN, ncol=5)
+```
+
+#Combine 2007 + 2012 datsets
+```{r}
+glimpse(nla2007)
+glimpse(nla2012)
+
+#RENAME some columns for easier merging
+nla2012_combine<-nla2012 %>%
+  rename(NTL=NTL_RESULT,
+         PTL=PTL_RESULT,
+         TURB=TURB_RESULT,
+         DOC=DOC_RESULT,
+         NITRATE_N=NITRATE_N_RESULT,
+         LAT_DD=LAT_DD83,
+         LON_DD=LON_DD83,
+         NO3_N=NITRATE_N_RESULT,
+         SITEID_12=SITE_ID) %>%
+  mutate(DATE_COL=mdy(DATE_COL),
+         YEAR=year(DATE_COL)) 
+
+nla2007_combine<-nla2007 %>%
+  rename(HUC2=HUC_2,
+         HUC8=HUC_8,
+         SIZE_CLASS_07=SIZE_CLASS,
+         NO3N=NO3N_PPM, 
+         SITEID_07=SITE_ID) %>%
+  mutate(LAKE_ORIGIN=case_when(
+  LAKE_ORIGIN == "MAN-MADE" ~ "MAN_MADE",
+  LAKE_ORIGIN == "NATURAL" ~ "NATURAL",
+  TRUE ~ "other")) %>%
+  select(-LAKEAREA) %>%
+  mutate(DATE_COL=mdy(DATE_COL),
+         YEAR=year(DATE_COL)) %>%
+    select(-PTL_2, -NTL_2, -DOC_2,
+         -TURB_2, -CHLA_2)
+
+glimpse(nla2007_combine)
+glimpse(nla2012_combine)
+
+# nla_all <- left_join(nla2007_combine, nla2012_combine, by=c("SITE_ID"="SITEID_07"))
+nla2007_combine_smol <- nla2007_combine %>%
+  select(SITEID_07, DATE_COL)
+nla2012_combine_smol <- nla2012_combine %>%
+  select(SITEID_07, SITEID_12, DATE_COL) %>%
+  drop_na(DATE_COL)
+
+#How many lakes were sampled in 2007 AND 2012? 
+left_join(nla2012_combine_smol,nla2007_combine_smol, by="SITEID_07") %>%
+  drop_na() %>%
+  n_distinct()
+
+test_join<-left_join(nla2012_combine,nla2007_combine, by=c("SITEID_07"))
+```

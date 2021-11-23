@@ -1,0 +1,2954 @@
+---
+title: "Controls on water quality in the western U.S."
+author: "Bella Oleksy"
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  bookdown::pdf_document2:
+    latex_engine: pdflatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir='..')
+knitr::opts_chunk$set(out.width = '100%',fig.height=5,
+                      echo=FALSE, 
+               warning=FALSE, message=FALSE) 
+
+```
+
+# Project motivation {-}
+
+## Impetus for this work {-}
+
+- Climate change is not only a threat to water **quantity** in the western United States, but likely also water *quality*.
+    + It is estimated that ~60 million people rely on snowmelt for drinking water and irrigation in the region
+    + Recent climate change and drought-related dust deposition events are implicated in the decline in snowpack in the western U.S., and resultant declines in streamflow
+-	While there has been a large emphasis on how climate change is impacting and will continue to impact water quantity in the western U.S., there has been less attention on how climate and land use change will impact water *quality* in lakes and reservoirs.
+    +	Most of what we know about the controls on water quality come from a legacy of research in temperate regions
+    +	However, the western U.S. is climatologically very different than the northeastern United States. Some general characteristics include:
+         + Snowmelt driven hydrology 
+         + Extremely high rates of evaporation and evapotranspiration in the terrestrial landscape
+         + Drought and fire are common and are increasing in their frequency and intensity 
+-	In the West, water is highly managed and controlled because it is scarce. 
+    + Reservoirs make up a high proportion of water bodies in the western U.S. 
+    + We have many reasons to believe that the controls on water quality in these different water bodies differs in systematic ways, and that natural vs. man-made water bodies respond differently to climate change (Hayes et al. 2017)
+-	Broad scale motivation
+    + Given the ongoing and anticipated future stress on water resources (e.g., drought, heat waves, wildfires) it is critical to understand the local and regional controls on water quality.
+    + A deeper understanding will allow for better prediction of vulnerabilities in our water resource systems.
+    + A focus on hydrologic connectivity may help us understand macroscale patterns in water quality
+
+## Research questions {-}
+
+1.	What are the landscape, climatic, and hydrologic controls on total P concentrations?*
+2.	Do the controls vary by ecoregion?
+3.	Are the controls on water chemistry different in natural vs. man-made?
+
+*See data summary below—TP is where we have the most data, but we can also add in nitrate without losing too many sites. 
+
+## Hypothesized patterns {-}
+
+1. Total P will vary based on landscape or network position;
+    a.	Specifically, I hypothesize that in hydrologically connected lake networks, TP concentrations will be generally lower in lakes down network of other lakes due to processes that promote burial of sediment/organic matter (longer residence times). 
+    b.	Further, because the elevational gradients are greater in the western US than the northeast/midwestern US, I hypothesize that we will see a greater effect of elevation on TP concentrations. For similar mechanisms as above, in drainage lakes connected to upstream lakes, TP concentrations will be lower in low elevation lakes compared to higher elevation lakes.
+    c.	Total P in hydrologically isolated lakes or drainage lakes lacking connections to upstream lakes will be lower than other lake types due to smaller watershed contributing areas
+2.	Total P will vary by climate and land use
+    a.	Like a lot of macroscale studies, I hypothesize that we will see a relationship of higher TP concentrations in areas with high % of cropland or pasture
+    b.	Unlike other macroscale studies, in this region I don’t think we will see a strong relationship between forest cover and lower TP concentration. My reasoning is that there is a very specific band where we see forest cover in the western U.S. and it’s mostly in the mountainous areas. My guess is that a hydrologic signal or winter climatic signal will overpower the effect of forest cover to control TP concentrations in those regions. 
+    c.	I hypothesize that TP concentrations will be relatively low in the maritime climate regions of the Pacific Northwest and in areas that receive a large amount of their precipitation in winter as snow. 
+3.	Total P will be higher in reservoirs than natural lakes
+    a.	This is a pattern that we see in the EPA NLA dataset and I can only imagine that if we expand our sample size this pattern would follow (see Figure 1).
+    b.	Why is this the case? It could be because of the tendency for reservoirs to be in larger watersheds relative to lakes of similar sizes. Therefore, compared to a natural lake of similar size, the WSA:LA is generally higher in a reservoir resulting in higher mass inputs than natural lakes.
+    c.	Another reason could be greater lake-level fluctuations in reservoirs, which could indirectly impact water chemistry via changes in lake stratification/mixing
+
+![*Total P concentrations by lake size and lake type. Source: EPA NLA 2007*](~/Dropbox/dropbox Research/Modelscape/modelscape/images/EPA_TP_by_laketype.png){#fig:epa_fig}
+
+\newpage
+## Some papers relevant to this work {-}
+
+Fergus et al (2020). [Lake Water Levels and Associated Hydrologic Characteristics in the Conterminous U.S.](https://doi.org/10.1111/1752-1688.12817)
+
+- Lakes, but especially reservoirs, in the western mountain ecoregion experience much greater drawdown than other regions of the U.S. – this of course will have implications beyond water balance and will impact lake physics, habitat, and ultimately chemistry.
+
+Mosley LM. 2015. [Drought impacts on the water quality of freshwater systems; review and integration.](https://doi.org/10.1016/j.earscirev.2014.11.010)
+
+- Prolonged (or severe) droughts can lead to longer water residence times, lower dilution potential, and increasing nutrient levels in lakes 
+
+Hayes et al. (2017). [Key differences between lakes and reservoirs modify climate signals: A case for a new conceptual model.](https://doi.org/10.1002/lol2.10036)
+
+- This paper was one of my initial motivators for this work. As far as I can tell, there hasn’t been any follow-up work explicitly looking at differences in water quality in natural lakes versus reservoirs, or testing any of the climatic sensitivity hypotheses that they pose in this paper. 
+
+Gardner et al. (2019). [The Abundance, Size, and Spacing of Lakes and Reservoirs Connected to River Networks.](https://doi.org/10.1029/2018GL080841)
+
+- They characterize lake-reservoir-river network in the conterminous United States into distinct typologies. Might give us some food-for-thought relating to how to characterize some of the networks in our study, or how to interpret results
+- I like this bit: *“By coupling a new understanding of river network topology with geospatial data sets and network modeling, we can examine how different types of river networks with lakes/reservoirs transport sediment, propagate geomorphic adjustment process carbon and nutrients and disperse species.”*
+
+McCullough et al. (2019). [Do lakes feel the burn? Ecological consequences of increasing exposure of lakes to fire in the continental United States.](https://doi.org/10.1111/gcb.14732)
+
+- Wildfires are ubiquitous enough in the western U.S. that we may see a signal in the water quality data. It would be worth revisiting the conceptual model in this paper. 
+
+Oleksy et al. (2020). [The role of warm, dry summers and variation in snowpack on phytoplankton dynamics in mountain lakes.](https://doi.org/10.1002/ecy.3132)
+
+- This is most definitely not a macroscale study, but at least in high-elevation lakes in the southern Rockies we see that snowpack and summer drought impact chlorophyll concentrations more so than land cover, lake position, etc. Researchers like Steve Sadro and his colleagues have seen similar things in the Sierra Nevada range. It would be cool to test the conceptual framework that we pose at the end of the paper.  
+
+## Data we will use or still need {-}
+
+<!-- Dataset | Status -->
+<!-- ------------- | ------------- -->
+<!-- LAGOS-US LOCUS  | Available internally -->
+<!-- LAGOS-US GEO | Release sometime Sept 2021 -->
+<!-- LAGOS-US LIMNO | Available internally -->
+<!-- LAGOS-US NETS | Published! -->
+<!-- LAGOS-US RSVR | Hopefully available soon? -->
+<!-- LAGOS-US DEPTH | Supposedly available internally, but I don't see it on Dropbox -->
+<!-- LakeCat | Has some super useful metrics like burn severity and area, forest distrubance/loss, agricultural fertilizer application rates, more detailed geology, census data, etc -->
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,paged.print=FALSE}
+
+dataset<-c("LAGOS-US LOCUS",
+"LAGOS-US GEO",
+"LAGOS-US LIMNO",
+"LAGOS-US NETS ",
+"LAGOS-US RSVR ",
+"LAGOS-US DEPTH",
+"LakeCat")
+
+status<-c("Available internally",
+          "Release sometime Sept 2021",
+          "Available internally",
+          "Published!",
+          "Hopefully available soon?",
+          "Supposedly available internally, but I don't see it on Dropbox",
+          "Published")
+
+
+knitr::kable(data.frame(dataset,status), "simple", caption="Data to use in this project")
+
+```
+
+## Expertise needed {-}
+
+In addition to me and Sarah's knowledge on the controls on water quality, it would be great to have some people on board who think a lot about the role of hydrology and connectivity in structuring limnological patterns across scales. Emi Fergus and K. Webster would be perfect for this. Once this project has some stronger legs, we can open it up to the Modelscape aquatic folks to bring in some river knowledge. 
+
+As a first approach, I think it would be cool to use sparse modeling to narrow down our predictor set. However, the limitation of something like SuSiE or Lasso is that as far as I can tell the model can't identify interactions (at least I haven't figured out how to do this). So, I think the impact of the paper would probably be more powerful if we could pair with either with some sort of regression tree/machine learning algorithms (e.g., boosted regression trees, RF) or Bayesian hierarchical modeling to account for all the different scales we are trying to compare across. Someone more knowledgable than me on spatial statistics would also be valuable to the team.  
+
+## Document structure {-}
+
+In the remainder of the document, I’ll give the reader an idea of data availability for TP as well as NO3, our second most abundant measurement in the western U.S. subset of lakes. We’ll have to give some thought as to whether we want to focus the analysis strictly on TP, or also look at N. There are some key differences between TP and NO3 which are interesting to think about.
+
+
+```{r Load necessary packages, echo=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+
+
+
+library(here)
+# install.packages(c("cowplot", "googleway", "ggplot2", "ggrepel", 
+# "ggspatial", "libwgeom", "sf", "rnaturalearth", "rnaturalearthdata"))
+if (!require('ggplot2')) install.packages('ggplot2'); library('ggplot2')
+if (!require('colorspace')) install.packages('colorspace'); library('colorspace')#Borrowed some code from their minimum working example: 
+
+library(tidyverse)
+library(lubridate)
+if (!require('patchwork')) install.packages('patchwork'); library('patchwork')
+if (!require('kableExtra')) install.packages('kableExtra'); library('kableExtra')
+library(data.table) #for faster data summaries than dplyr
+if (!require('ggstatsplot')) install.packages('ggstatsplot'); library('ggstatsplot')
+if (!require('ggthemes')) install.packages('ggthemes'); library('ggthemes')
+theme_set(ggthemes::theme_base())
+
+library(GGally)
+
+if (!require('glmnet')) install.packages('glmnet'); library('glmnet')#For LASSO: https://www.statology.org/lasso-regression-in-r/
+if (!require('susieR')) install.packages('susieR'); library('susieR')#Borrowed some code from their minimum working example: #https://stephenslab.github.io/susieR/articles/mwe.html
+
+
+#packages for extreme gradient boosting
+if (!require('xgboost')) install.packages('xgboost'); library('xgboost')
+if (!require('caret')) install.packages('caret'); library('caret')
+if (!require('DiagrammeR')) install.packages('DiagrammeR'); library('DiagrammeR')
+
+
+#For summary
+if (!require('huxtable')) install.packages('huxtable'); library('huxtable')
+if (!require('officer')) install.packages('officer'); library('officer')
+if (!require('flextable')) install.packages('flextable'); library('flextable')
+
+#Mapping
+
+library("sf")
+library("rnaturalearth")
+library("rnaturalearthdata")
+library("ggspatial")
+library(raster)
+library(tidytext)
+if (!require('nhdplusTools')) install.packages('nhdplusTools'); library('nhdplusTools')
+if (!require('maps')) install.packages('maps'); library('maps')
+
+if (!require('ggfortify')) install.packages('ggfortify'); library('ggfortify')
+if (!require('cluster')) install.packages('cluster'); library('cluster')
+if (!require('FactoMineR')) install.packages('FactoMineR'); library('FactoMineR')
+if (!require('factoextra')) install.packages('factoextra'); library('factoextra')
+
+#For sen slopes
+library(trend)
+library(zyp)
+
+#Wilcox tests
+
+if (!require('coin')) install.packages('coin'); library('coin')
+
+#XG Boost
+if (!require('xgboost')) install.packages('xgboost'); library('xgboost')
+if (!require('caret')) install.packages('caret'); library('caret')
+if (!require('DiagrammeR')) install.packages('DiagrammeR'); library('DiagrammeR')
+
+# devtools::install_github("crsh/papaja")
+library(papaja)
+```
+
+```{r Load functions, echo=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+
+
+n_fun <- function(x){
+  return(data.frame(y = max(x+0.5), label = paste0("n = ",length(x))))
+}
+
+
+#By DCR
+#Function: slope differences####
+#Calculates all pairwise slope differnces
+#Used in Theil sen slope function: sensSlope
+slope.differences <- function(i, xx, yy, n){ (yy[1:(n - i)] - yy[(i + 1):n])/(xx[1:(n - i)] - xx[(i + 1):n])}
+
+#Function: Theil Sen's slope (non-parametric slope)####
+#Can deal with NAs in the data frame
+#Includes output of p-value, slope and intercept
+#based on a combination of zyp:zyp.sen and trend:sens.slope
+#Implentation:
+#sensSlope(testDF.na$Year,testDF.na$Response)
+sensSlope<-function (x,y) 
+{
+  #Figure out the length of the data
+  n <- length(x)
+  #Get all the pairwise slopes
+  slopes <- unlist(lapply(1:(n - 1), slope.differences, x, y, n))
+  #Figure out which ones are finite
+  sni <- which(is.finite(slopes))
+  #Get the median slope of only the finite ones
+  slope <- median(slopes[sni])
+  #Calculate all the possible intercepts
+  intercepts <- y - slope * x
+  #Get the median intercept - this is different from zyp.sen because it has na.rm=T
+  intercept <- median(intercepts,na.rm=TRUE)
+  #Make the y variables into a table
+  table <- table(y)
+  names(table) <- NULL
+  #Adjust table values?
+  tadjs <- sum(table * (table - 1) * (2 * table + 5))
+  #Not sure what varS signifies
+  varS <- (n * (n - 1) * (2 * n + 5) - tadjs)/18
+  #Find some boundaries for significance?
+  C <- qnorm(1 - (1 -0.95)/2) * sqrt(varS)
+  rank.up <- round(((n-1) + C)/2 + 1)
+  rank.lo <- round(((n-1) - C)/2)
+  rank.d <- sort(slopes[sni])
+  lo <- rank.d[rank.lo]
+  up <- rank.d[rank.up]
+  #mkScore
+  S <- 0
+  for (j in 1:n) {
+    S <- S + sum(sign(y[j] - y[1:j]),na.rm=TRUE)
+  }
+  
+  sg <- sign(S)
+  z <- sg * (abs(S) - 1)/sqrt(varS)
+  pval <- 2 * min(0.5, pnorm(abs(z), lower.tail = FALSE))
+  
+  #Compile a list for export
+  res <- list(coefficients = c(intercept, slope), 
+              residuals = (y - slope * x + intercept), 
+              pval=pval,z_stat=z,n=n)
+  names(res$coefficients) = c("Intercept", "year")
+  return(res)
+} 
+
+
+
+
+#Plotting functions for density graphs
+density_ci = function(values, resolution=100) {
+    values_range = range(values, na.rm=TRUE)
+    function(x) {
+        density_data = StatDensity$compute_group(
+            data.frame(x=x),
+            scales=list(
+                x=scale_x_continuous(limits = values_range)
+            )
+        )
+        mean_x = mean(x)
+        sem = sd(x) / sqrt(length(x))
+        ci_lower = mean_x - 1.96 * sem
+        ci_upper = mean_x + 1.96 * sem
+
+        x_values = seq(ci_lower, ci_upper, length.out=resolution)
+
+        data.frame(
+            xmin=x_values,
+            xmax=x_values,
+            ymin=rep(0, resolution),
+            ymax=approx(density_data$x, density_data$density, xout=x_values)$y
+        )
+    }
+}
+
+density_mean_line = function(values) {
+    values_range = range(values, na.rm=TRUE)
+    function(x) {
+        density_data = StatDensity$compute_group(
+            data.frame(x=x),
+            scales=list(
+                x=scale_x_continuous(limits = values_range)
+            )
+        )
+        mean_x = mean(x)
+        data.frame(
+            xmin=mean_x,
+            xmax=mean_x,
+            ymin=0,
+            ymax=approx(density_data$x, density_data$density, xout=mean_x)$y
+        )
+    }
+}
+
+
+```
+
+```{r Source raw data, echo=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+source("~/Dropbox/dropbox Research/Modelscape/modelscape/000_compile_data.R")
+```
+
+<!-- # ```{r Load compiled data, echo=FALSE, message=FALSE, warning=FALSE, include=FALSE} -->
+<!-- # dt1_western<-read.csv("~/Dropbox/dropbox Research/Modelscape/modelscape/data/export/dt1_western.csv") -->
+<!-- # dt1_western_summary<-read.csv("~/Dropbox/dropbox Research/Modelscape/modelscape/data/export/dt1_western_summary.csv") -->
+<!-- #  -->
+<!-- # str(dt1_western_summary) -->
+<!-- # ``` -->
+
+```{r mapping, echo=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+# rivers50 <- ne_download(scale = "large", type = 'rivers_lake_centerlines', category = 'physical', returnclass = "sf")
+# sp::plot(rivers50)
+us <- ne_countries(scale = "medium", country="united states of america",returnclass = "sf")
+
+states<-(map_data("state", boundary = FALSE, interior = TRUE))
+# str(states)
+
+#Crop to western US
+us_crop <- st_crop(us
+                    , xmin = -130, xmax = -100, ymin = 32, ymax = 49)
+
+```
+
+\newpage
+# Summary stats on LAGOS NETS
+## Inventory of spatial data
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,paged.print=FALSE}
+#Number of non-NAs per parameter
+nonNAs<-dt1_western_summary %>%
+  dplyr::select((-contains("detectionlimit")))%>%
+  dplyr::select((-contains("lake_nets")))%>%
+  dplyr::select((-contains("_id")))%>%
+  dplyr::select((-contains("lake")))%>%
+  dplyr::select((-contains("code")))%>%
+  dplyr::select((-contains("zone")))%>%
+  dplyr::select((-contains("ws_")))%>%
+  dplyr::select((-contains("nws_")))%>%
+  dplyr::select(-c(net_dams_n,nhdplusv2_comid,decade_sampled))%>%
+  # dplyr::select(everything()) %>%  # replace to your needs
+  dplyr::select(-c(1:7))%>%
+  dplyr::select(-"has_limno")%>%
+  # group_by(connectivity_type)%>%
+  summarise_all(funs(sum(!is.na(.)))) %>%
+  rownames_to_column() %>%
+  pivot_longer(-1) %>%
+  dplyr::select(-rowname) %>%
+  rename(parameter=name,
+         count=value) %>%
+  filter(grepl('median', parameter))%>% #filter by string, only include median values
+  arrange(desc(count))
+
+knitr::kable(nonNAs[1:10,], "simple", caption="Table summarizing the 10 top most abundant water quality parameters in the LAGOS-US database where 'count' refers to the number of unique lakes")
+
+
+##Re-calculating number of samples for TP, NO3, or both by lake class
+dt1_western_summary %>%
+  dplyr::select(lagoslakeid, lake_rsvr_class, tp_ugl_median) %>%
+  drop_na(tp_ugl_median) %>%
+  group_by(lake_rsvr_class) %>%
+  summarize(n=length(unique(lagoslakeid)))
+
+dt1_western_summary %>%
+  dplyr::select(lagoslakeid, lake_rsvr_class, no2no3n_ugl_median) %>%
+  drop_na(no2no3n_ugl_median) %>%
+  group_by(lake_rsvr_class) %>%
+  summarize(n=length(unique(lagoslakeid)))
+
+dt1_western_summary %>%
+  dplyr::select(lagoslakeid, lake_rsvr_class, no2no3n_ugl_median, tp_ugl_median) %>%
+  drop_na(no2no3n_ugl_median,tp_ugl_median) %>%
+  group_by(lake_rsvr_class) %>%
+  summarize(n=length(unique(lagoslakeid)))
+```
+
+The first thing I want to do is taken an inventory of the water quality data that we have so far. Some caveats:
+
+- Currently the summary data I'm showing from LAGOS-US uses preliminary nutrient data from Dropbox.
+- I filtered out the "western US" by state, including: CA, UT, NV, WA, OR, ID, MT, WY, CO, NM, and AZ. We will eventually want to be more thoughtful about how we break this up geographically in a way that is relevant to hydrology/limnology (e.g., by HU4 or major drainage basin boundaries).
+
+What are the top 10 most abundant measured parameters, and how many lakes do we have for each of those parameters? The table above shows the breakdown. 
+
+How many lakes have both TP and NO3?
+
+```{r what exists TP NO3, echo=FALSE, message=FALSE, warning=FALSE}
+dt1_western_summary %>%
+  dplyr::select(lagoslakeid, tp_ugl_median, no2no3n_ugl_median)%>%
+  drop_na(tp_ugl_median,no2no3n_ugl_median) %>%
+  summarise_all(funs(sum(!is.na(.)))) %>%
+  rownames_to_column() %>%
+  pivot_longer(-1) %>%
+  dplyr::select(-rowname) %>%
+  rename(parameter=name,
+         count=value) %>%
+  filter(grepl('median', parameter))%>% #filter by string, only include median values
+  arrange(desc(count)) %>%
+  filter(parameter=="tp_ugl_median")%>%
+  pull()
+```
+
+Since 2010?
+```{r what exists TP NO3 2, echo=FALSE, message=FALSE, warning=FALSE}
+dt1_western_summary_2010s %>%
+  dplyr::select(lagoslakeid, tp_ugl_median, no2no3n_ugl_median)%>%
+  drop_na(tp_ugl_median,no2no3n_ugl_median) %>%
+  summarise_all(funs(sum(!is.na(.)))) %>%
+  rownames_to_column() %>%
+  pivot_longer(-1) %>%
+  dplyr::select(-rowname) %>%
+  rename(parameter=name,
+         count=value) %>%
+  filter(grepl('median', parameter))%>% #filter by string, only include median values
+  arrange(desc(count)) %>%
+  filter(parameter=="tp_ugl_median")%>%
+  pull()
+```
+
+
+How many lakes have TP, NO3, and NH4?
+
+```{r what exists TP NO3 NH4, echo=FALSE, message=FALSE, warning=FALSE}
+dt1_western_summary %>%
+  dplyr::select(lagoslakeid, tp_ugl_median, no2no3n_ugl_median,nh4n_ugl_median)%>%
+  drop_na(tp_ugl_median,no2no3n_ugl_median,nh4n_ugl_median) %>%
+  summarise_all(funs(sum(!is.na(.)))) %>%
+  rownames_to_column() %>%
+  pivot_longer(-1) %>%
+  dplyr::select(-rowname) %>%
+  rename(parameter=name,
+         count=value) %>%
+  filter(grepl('median', parameter))%>% #filter by string, only include median values
+  arrange(desc(count)) %>%
+  filter(parameter=="tp_ugl_median")%>%
+  pull()
+
+```
+
+How many lakes have TP, NO3, and secchi?
+```{r what exists TP NO3 secchi, echo=FALSE, message=FALSE, warning=FALSE}
+dt1_western_summary %>%
+  dplyr::select(lagoslakeid, tp_ugl_median, no2no3n_ugl_median,secchi_m_median)%>%
+  drop_na(tp_ugl_median,no2no3n_ugl_median,secchi_m_median) %>%
+  summarise_all(funs(sum(!is.na(.)))) %>%
+  rownames_to_column() %>%
+  pivot_longer(-1) %>%
+  dplyr::select(-rowname) %>%
+  rename(parameter=name,
+         count=value) %>%
+  filter(grepl('median', parameter))%>% #filter by string, only include median values
+  arrange(desc(count))%>%
+  filter(parameter=="tp_ugl_median")%>%
+  pull()
+```
+
+As you can see, once we go beyond the top two parameters (TP and NO3) our sample size of lakes decreases quite rapidly (assuming we want to study the same population of lakes).
+
+
+For each lake, how many individual years go into each datapoint?
+
+```{r more summary stats, echo=FALSE, message=FALSE, warning=FALSE}
+
+annualFreqTP<-dt1_western %>%
+  filter(lagoslakeid %in% tp_complete_cases) %>%
+  group_by(lagoslakeid) %>%
+  summarize(n_years_sampled=length(unique(year)))%>%
+  filter(n_years_sampled>10) %>%
+  pivot_wider(names_from=lagoslakeid, values_from=n_years_sampled) %>%
+  names()
+annualFreqTP_names<- dt1_western_s
+
+
+##TP first
+#Get names of lakes
+tp_complete_cases<-dt1_western_summary %>%
+  drop_na(tp_ugl_median) %>%
+  dplyr::select(lagoslakeid, tp_ugl_median)%>%
+  pivot_wider(names_from=lagoslakeid, values_from=tp_ugl_median) %>%
+  names()
+
+zoomTPplot<-dt1_western %>%
+  filter(lagoslakeid %in% tp_complete_cases) %>%
+  group_by(lagoslakeid) %>%
+  summarize(n_years_sampled=length(unique(year)))%>%
+  filter(n_years_sampled>3)%>%
+  ggplot(aes(x=n_years_sampled))+
+  ylim(c(0,40))+
+  geom_histogram(binwidth=1, color="black", fill="grey40")+
+  labs(
+       title="Over 3 years",
+       x="Number of years sampled")+
+  theme_classic()
+
+#Plot a distribution of how many years of data there is for each lake 
+dt1_western %>%
+  filter(lagoslakeid %in% tp_complete_cases) %>%
+  group_by(lagoslakeid) %>%
+  summarize(n_years_sampled=length(unique(year)))%>%
+  ggplot(aes(x=n_years_sampled))+
+  geom_histogram(binwidth=1, color="black", fill="grey40")+
+  labs(title="All lakes with TP data",
+       subtitle="Minimum 2 years per lake",
+       x="Number of years sampled")+
+  annotation_custom(grob=ggplotGrob(zoomTPplot), 
+                      ymin = 200, ymax=600,
+                    xmin=20,xmax=40)
+
+
+
+
+
+##NO3 next
+#Get names of lakes
+no3_complete_cases<-dt1_western_summary %>%
+  drop_na(no2no3n_ugl_median) %>%
+  dplyr::select(lagoslakeid, no2no3n_ugl_median)%>%
+  pivot_wider(names_from=lagoslakeid, values_from=no2no3n_ugl_median) %>%
+  names()
+
+zoomNO3plot<-dt1_western %>%
+  filter(lagoslakeid %in% no3_complete_cases) %>%
+  group_by(lagoslakeid) %>%
+  summarize(n_years_sampled=length(unique(year)))%>%
+  filter(n_years_sampled>3)%>%
+  ggplot(aes(x=n_years_sampled))+
+  ylim(c(0,50))+
+  geom_histogram(binwidth=1, color="black", fill="grey40")+
+  labs(
+       title="Over 3 years",
+       x="Number of years sampled")+
+  theme_classic()
+
+#Plot a distribution of how many years of data there is for each lake 
+dt1_western %>%
+  filter(lagoslakeid %in% no3_complete_cases) %>%
+  group_by(lagoslakeid) %>%
+  summarize(n_years_sampled=length(unique(year)))%>%
+  ggplot(aes(x=n_years_sampled))+
+  geom_histogram(binwidth=1, color="black", fill="grey40")+
+  labs(title="All lakes with NO3 data",
+       subtitle="Minimum 2 years per lake",
+       x="Number of years sampled")+
+  annotation_custom(grob=ggplotGrob(zoomNO3plot), 
+                      ymin = 200, ymax=500,
+                    xmin=20,xmax=40)
+
+```
+
+Does this change if we only use 2010s-present data?
+
+```{r more summary stats, echo=FALSE, message=FALSE, warning=FALSE}
+
+##TP first
+#Get names of lakes
+tp_complete_cases<-dt1_western_summary_2010s %>%
+  drop_na(tp_ugl_median) %>%
+  dplyr::select(lagoslakeid, tp_ugl_median)%>%
+  pivot_wider(names_from=lagoslakeid, values_from=tp_ugl_median) %>%
+  names()
+
+zoomTPplot<-dt1_western %>%
+  filter(lagoslakeid %in% tp_complete_cases) %>%
+  group_by(lagoslakeid) %>%
+  summarize(n_years_sampled=length(unique(year)))%>%
+  filter(n_years_sampled>3)%>%
+  ggplot(aes(x=n_years_sampled))+
+  ylim(c(0,25))+
+  geom_histogram(binwidth=1, color="black", fill="lightblue")+
+  labs(
+       title="Over 3 years",
+       x="Number of years sampled")+
+  theme_classic()
+
+#Plot a distribution of how many years of data there is for each lake 
+dt1_western %>%
+  filter(lagoslakeid %in% tp_complete_cases) %>%
+  group_by(lagoslakeid) %>%
+  summarize(n_years_sampled=length(unique(year)))%>%
+  ggplot(aes(x=n_years_sampled))+
+  geom_histogram(binwidth=1, color="black", fill="lightblue")+
+  labs(title="All lakes with TP data - 2010-present",
+       subtitle="Minimum 2 years per lake",
+       x="Number of years sampled")+
+  annotation_custom(grob=ggplotGrob(zoomTPplot), 
+                      ymin = 50, ymax=100,
+                    xmin=20,xmax=40)
+
+
+
+
+
+##NO3 next
+#Get names of lakes
+no3_complete_cases<-dt1_western_summary_2010s %>%
+  drop_na(no2no3n_ugl_median) %>%
+  dplyr::select(lagoslakeid, no2no3n_ugl_median)%>%
+  pivot_wider(names_from=lagoslakeid, values_from=no2no3n_ugl_median) %>%
+  names()
+
+zoomNO3plot<-dt1_western %>%
+  filter(lagoslakeid %in% no3_complete_cases) %>%
+  group_by(lagoslakeid) %>%
+  summarize(n_years_sampled=length(unique(year)))%>%
+  filter(n_years_sampled>3)%>%
+  ggplot(aes(x=n_years_sampled))+
+  ylim(c(0,20))+
+  geom_histogram(binwidth=1, color="black", fill="lightblue")+
+  labs(
+       title="Over 3 years",
+       x="Number of years sampled")+
+  theme_classic()
+
+#Plot a distribution of how many years of data there is for each lake 
+dt1_western %>%
+  filter(lagoslakeid %in% no3_complete_cases) %>%
+  group_by(lagoslakeid) %>%
+  summarize(n_years_sampled=length(unique(year)))%>%
+  ggplot(aes(x=n_years_sampled))+
+  geom_histogram(binwidth=1, color="black", fill="lightblue")+
+  labs(title="All lakes with NO3 data - 2010-present",
+       subtitle="Minimum 2 years per lake",
+       x="Number of years sampled")+
+  annotation_custom(grob=ggplotGrob(zoomNO3plot), 
+                      ymin = 40, ymax=80,
+                    xmin=20,xmax=40)
+
+```
+
+
+Do we typically have more than one sampling event a year?
+
+```{r even more summary stats, echo=FALSE, message=FALSE, warning=FALSE}
+
+
+zoomTPplot2<-dt1_western %>%
+  filter(lagoslakeid %in% tp_complete_cases) %>%
+  group_by(lagoslakeid) %>%
+  summarize(tp_ugl_n=round(median(tp_ugl_n, na.rm=TRUE)))%>%
+  filter(tp_ugl_n>2)%>%
+  ggplot(aes(x=tp_ugl_n))+
+  geom_histogram(binwidth=1, color="black", fill="grey40")+
+  labs(title=">2x annually",
+       # subtitle="Minimum 2 years per lake",
+       x="Number of samples per year")+
+  theme_classic()
+
+#Plot a distribution of how many years of data there is for each lake 
+dt1_western %>%
+  filter(lagoslakeid %in% tp_complete_cases) %>%
+  group_by(lagoslakeid) %>%
+  summarize(tp_ugl_n=round(median(tp_ugl_n, na.rm=TRUE)))%>%
+  ggplot(aes(x=tp_ugl_n))+
+  geom_histogram(binwidth=1, color="black", fill="grey40")+
+  labs(title="All lakes with TP data",
+       # subtitle="Minimum 2 years per lake",
+       x="Number of samples per year")+
+  annotation_custom(grob=ggplotGrob(zoomTPplot2),
+                      ymin = 200, ymax=600,
+                    xmin=10,xmax=20)
+
+
+sampleFreqNO3<-dt1_western %>%
+  filter(lagoslakeid %in% no3_complete_cases) %>%
+  group_by(lagoslakeid) %>%
+  summarize(no2no3n_ugl_n=round(median(no2no3n_ugl_n, na.rm=TRUE)))%>%
+  filter(no2no3n_ugl_n>2)
+
+
+zoomNO3plot2<-dt1_western %>%
+  filter(lagoslakeid %in% no3_complete_cases) %>%
+  group_by(lagoslakeid) %>%
+  summarize(no2no3n_ugl_n=round(median(no2no3n_ugl_n, na.rm=TRUE)))%>%
+  filter(no2no3n_ugl_n>2)%>%
+  ggplot(aes(x=no2no3n_ugl_n))+
+  ylim(c(0,60))+
+  geom_histogram(binwidth=1, color="black", fill="grey40")+
+  labs(title=">2x annually",
+       # subtitle="Minimum 2 years per lake",
+       x="Number of samples per year")+
+  theme_classic()
+
+#Plot a distribution of how many years of data there is for each lake 
+dt1_western %>%
+  filter(lagoslakeid %in% no3_complete_cases) %>%
+  group_by(lagoslakeid) %>%
+  summarize(no2no3n_ugl_n=round(median(no2no3n_ugl_n, na.rm=TRUE)))%>%
+  ggplot(aes(x=no2no3n_ugl_n))+
+  geom_histogram(binwidth=1, color="black", fill="grey40")+
+  labs(title="All lakes with NO3 data",
+       # subtitle="Minimum 2 years per lake",
+       x="Number of samples per year")+
+  annotation_custom(grob=ggplotGrob(zoomNO3plot2),
+                      ymin = 200, ymax=600,
+                    xmin=10,xmax=20)
+
+```
+
+
+\newpage
+### Maps of spatial data
+
+#### Concentrations across space
+Total phosphorus and NO3 concentrations across space
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,out.width = '100%', out.height='45%'}
+
+# TP_spatial_conc<-
+  ggplot()+
+    geom_sf(data = us,color = "black")+
+      geom_polygon(data=states, aes(x=long, y=lat, group=group),
+               fill=NA, color="black",
+               linetype="dashed")+
+    # geom_sf(data=rivers50, color="lightblue")+  
+  annotation_scale(location = "bl", width_hint = 0.2) +
+    coord_sf(xlim = c(-130, -100), ylim = c(32, 49), expand=TRUE)+
+  geom_point(data=dt1_western_summary %>%
+               drop_na(tp_ugl_median), aes(lake_lon_decdeg, lake_lat_decdeg, fill=log10(tp_ugl_median), shape=lake_rsvr_class),
+             size=2.5, alpha=0.6)+
+  scale_shape_manual(values=c(21,25))+
+  scale_fill_continuous_diverging(palette = "Blue-Red",
+                                  name="log10(TP)")+
+  ggtitle("TP")+
+  theme_classic()
+
+
+# NO3_spatial_conc<-
+  ggplot()+
+    geom_sf(data = us,color = "black")+
+      geom_polygon(data=states, aes(x=long, y=lat, group=group),
+               fill=NA, color="black",
+               linetype="dashed")+
+    # geom_sf(data=rivers50, color="lightblue")+  
+  annotation_scale(location = "bl", width_hint = 0.5) +
+    annotation_north_arrow(location = "bl", which_north = "true", 
+        pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+        style = north_arrow_fancy_orienteering) +
+    coord_sf(xlim = c(-130, -100), ylim = c(32, 49), expand=TRUE)+
+  geom_point(data=dt1_western_summary %>%
+               drop_na(no2no3n_ugl_median), aes(lake_lon_decdeg, lake_lat_decdeg, fill=log10(no2no3n_ugl_median), shape=lake_rsvr_class),
+             size=2.5)+
+      scale_shape_manual(values=c(21,25))+
+  scale_fill_continuous_diverging(palette = "Vik",
+                                  name="log10(NO3)")+
+  ggtitle("NO2-NO3")+
+  theme_classic()
+
+# (TP_spatial_conc+NO3_spatial_conc)+
+#   plot_annotation(tag_levels = 'A')
+
+```
+
+#### Timing of sampling
+
+For the lakes with TP and NO3 data, when were most of the samples obtained? (median of all years sampled, grouped by decade)
+
+```{r sample timing gradients of TP 1, echo=FALSE, message=FALSE, warning=FALSE,out.width = '100%', out.height='45%'}
+ggplot()+
+    geom_sf(data = us,color = "black")+
+      geom_polygon(data=states, aes(x=long, y=lat, group=group),
+               fill=NA, color="black",
+               linetype="dashed")+
+    # geom_sf(data=rivers50, color="lightblue")+  
+    annotation_scale(location = "bl", width_hint = 0.5) +
+    # annotation_north_arrow(location = "bl", which_north = "true", 
+    #     pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+    #     style = north_arrow_fancy_orienteering) +
+    coord_sf(xlim = c(-130, -100), ylim = c(32, 49), expand=TRUE)+
+  geom_point(data=dt1_western_summary %>%
+               drop_na(tp_ugl_median)%>%
+               drop_na(decade_sampled), aes(lake_lon_decdeg, lake_lat_decdeg, fill=decade_sampled),
+             shape=21, size=2.5)+
+  scale_fill_manual(values=c("#ffbe0b","#fb5607","#ff006e","#8338ec","#3a86ff"))+
+  ggtitle("All sites with TP data")
+
+##All sites with TP sampled since the 2010s
+
+    
+    
+ggplot()+
+    geom_sf(data = us,color = "black")+
+      geom_polygon(data=states, aes(x=long, y=lat, group=group),
+               fill=NA, color="black",
+               linetype="dashed")+
+    # geom_sf(data=rivers50, color="lightblue")+  
+    annotation_scale(location = "bl", width_hint = 0.5) +
+    # annotation_north_arrow(location = "bl", which_north = "true", 
+    #     pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+    #     style = north_arrow_fancy_orienteering) +
+    coord_sf(xlim = c(-130, -100), ylim = c(32, 49), expand=TRUE)+
+  geom_point(data=dt1_western_summary %>%
+               drop_na(tp_ugl_median)%>%
+               drop_na(decade_sampled), aes(lake_lon_decdeg, lake_lat_decdeg, fill=decade_sampled),
+             shape=21, size=2.5)+
+  scale_fill_manual(values=c("#ffbe0b","#fb5607","#ff006e","#8338ec","#3a86ff"))+
+  ggtitle("All sites with TP data")
+    
+
+```
+
+```{r sample timing gradients of NO3 1, echo=FALSE, message=FALSE, warning=FALSE,out.width = '100%', out.height='45%'}
+ggplot()+
+    geom_sf(data = us,color = "black")+
+      geom_polygon(data=states, aes(x=long, y=lat, group=group),
+               fill=NA, color="black",
+               linetype="dashed")+
+    # geom_sf(data=rivers50, color="lightblue")+  
+    annotation_scale(location = "bl", width_hint = 0.5) +
+    annotation_north_arrow(location = "bl", which_north = "true", 
+        pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+        style = north_arrow_fancy_orienteering) +
+    coord_sf(xlim = c(-130, -100), ylim = c(32, 49), expand=TRUE)+
+  geom_point(data=dt1_western_summary %>%
+               drop_na(no2no3n_ugl_median)%>%
+               drop_na(decade_sampled), aes(lake_lon_decdeg, lake_lat_decdeg, fill=decade_sampled),
+             shape=21, size=2.5)+
+  scale_fill_manual(values=c("#ffbe0b","#fb5607","#ff006e","#8338ec","#3a86ff"))+
+  ggtitle("All sites with NO3 data ")+
+  theme_classic()
+
+```
+
+The plots below shows the counts of all the lakes sampled for TP and NO3, grouped by when most of their samples were taken
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,out.width = '100%', out.height='30%'}
+dt1_western_summary%>%
+  drop_na(decade_sampled)%>%
+  drop_na(tp_ugl_median)%>%
+  group_by(decade_sampled) %>%
+  summarize(n=length(unique(lagoslakeid)))%>%
+  ggplot(aes(x=decade_sampled, y=n, fill=decade_sampled))+
+  geom_bar(stat="identity",  color="black")+
+  scale_fill_manual(values=c("#ffbe0b","#fb5607","#ff006e","#8338ec","#3a86ff"))+
+    theme(legend.position="none",
+        axis.title.x=element_blank(),
+        axis.text.x=element_text(angle = 45, hjust = 1, size=10))+
+    geom_text(aes(label = n),
+              position = position_stack(vjust = .5))+
+  ggtitle("TP")
+
+dt1_western_summary%>%
+  drop_na(decade_sampled)%>%
+  drop_na(no2no3n_ugl_median)%>%
+  group_by(decade_sampled) %>%
+  summarize(n=length(unique(lagoslakeid)))%>%
+  ggplot(aes(x=decade_sampled, y=n, fill=decade_sampled))+
+  geom_bar(stat="identity",  color="black")+
+  scale_fill_manual(values=c("#ffbe0b","#fb5607","#ff006e","#8338ec","#3a86ff"))+
+    theme(legend.position="none",
+        axis.title.x=element_blank(),
+        axis.text.x=element_text(angle = 45, hjust = 1, size=10))+
+    geom_text(aes(label = n),
+              position = position_stack(vjust = .5))+
+  ggtitle("NO3")
+
+
+
+```
+
+In both TP and NO3, you can see the influence of the Western Lakes Survey in the 80s. Many of the lakes included in the 2000s and 2010s were part of the EPA National Lakes Assessment. Spatially, I notice that Utah had a pretty aggressive sampling campaign in the 1990s. My guess is that for very high elevation lakes in each state, most of those lakes were sampled during the WLS. Another way to visualize this: 
+
+```{r sampling freq histograms, echo=FALSE, message=FALSE, warning=FALSE,out.width = '50%', out.height='50%'}
+
+#of the lakes included in the dt1_western_summary, get an estimate for number years each lake was sampled
+
+
+##TP first
+#Get names of lakes
+tp_spatial_lakes<-dt1_western_summary %>%
+  drop_na(tp_ugl_median) %>%
+  dplyr::select(lagoslakeid, tp_ugl_median)%>%
+  pivot_wider(names_from=lagoslakeid, values_from=tp_ugl_median) %>%
+  names()
+
+#Then get a dataframe with only those lakes and count the number of years each site was sampled. 
+dt1_western_TP_obs<-dt1_western %>%
+  filter(lagoslakeid %in% tp_spatial_lakes) %>%
+  group_by(lagoslakeid) %>%
+  mutate(n_years_sampled=length(unique(year))) %>%
+  # mutate(year=as.numeric(as.character(year))) %>%
+  dplyr::select(lagoslakeid,year,tp_ugl_median) %>%
+  drop_na(year)
+#Note there are some NAs for TP which makes me think these lakes were sampled in those years, just NOT for TP.
+
+#Number of unique lakes sampled every year
+dt1_western_TP_obs%>%
+  dplyr::select(lagoslakeid, year)%>%
+  drop_na(year) %>%
+  group_by(year) %>%
+  summarize(n_lakes_sampled=length(unique(lagoslakeid))) %>%
+  arrange(desc(n_lakes_sampled)) %>%
+  ggplot(aes(x=as.numeric(as.character(year)), y=n_lakes_sampled, fill=year))+
+  geom_bar(stat="identity",  color="black")+
+  scale_fill_viridis_d()+
+    theme(legend.position="none",
+        axis.title.x=element_blank(),
+        axis.text.x=element_text(angle = 45, hjust = 1, size=6))+
+  ggtitle("Number of unique lakes sampled for TP each year")+
+    geom_text(aes(label = n_lakes_sampled),
+              position=position_nudge(y=10), size=3)
+
+
+##NO3 next
+#Get names of lakes
+no3_spatial_lakes<-dt1_western_summary %>%
+  drop_na(no2no3n_ugl_median) %>%
+  dplyr::select(lagoslakeid, no2no3n_ugl_median)%>%
+  pivot_wider(names_from=lagoslakeid, values_from=no2no3n_ugl_median) %>%
+  names()
+
+#Then get a dataframe with only those lakes and count the number of years each site was sampled. 
+dt1_western_NO3_obs<-dt1_western %>%
+  filter(lagoslakeid %in% no3_spatial_lakes) %>%
+  group_by(lagoslakeid) %>%
+  mutate(n_years_sampled=length(unique(year))) %>%
+  # mutate(year=as.numeric(as.character(year))) %>%
+  dplyr::select(lagoslakeid,year,no2no3n_ugl_median) %>%
+  drop_na(year)
+
+#Number of unique lakes sampled every year
+dt1_western_NO3_obs%>%
+  dplyr::select(lagoslakeid, year)%>%
+  drop_na(year) %>%
+  group_by(year) %>%
+  summarize(n_lakes_sampled=length(unique(lagoslakeid))) %>%
+  arrange(desc(n_lakes_sampled)) %>%
+  ggplot(aes(x=as.numeric(as.character(year)), y=n_lakes_sampled, fill=year))+
+  geom_bar(stat="identity",  color="black")+
+  scale_fill_viridis_d()+
+    theme(legend.position="none",
+        axis.title.x=element_blank(),
+        axis.text.x=element_text(angle = 45, hjust = 1, size=6))+
+  ggtitle("Number of unique lakes sampled for NO3 each year")+
+    geom_text(aes(label = n_lakes_sampled),
+              position=position_nudge(y=10), size=3)
+
+##BOTH NO3 and TP? Look the same?
+
+
+# #Get names of lakes
+# tpno3_spatial_lakes<-dt1_western_summary %>%
+#   drop_na(no2no3n_ugl_median, tp_ugl_median) %>%
+#   dplyr::select(lagoslakeid, no2no3n_ugl_median)%>%
+#   pivot_wider(names_from=lagoslakeid, values_from=no2no3n_ugl_median) %>%
+#   names()
+# 
+# #Then get a dataframe with only those lakes and count the number of years each site was sampled. 
+# dt1_western_TPNO3_obs<-dt1_western %>%
+#   filter(lagoslakeid %in% tpno3_spatial_lakes) %>%
+#   group_by(lagoslakeid) %>%
+#   mutate(n_years_sampled=length(unique(year))) %>%
+#   # mutate(year=as.numeric(as.character(year))) %>%
+#   dplyr::select(lagoslakeid,year,no2no3n_ugl_median,tp_ugl_median) %>%
+#   drop_na(year)
+# 
+# #Number of unique lakes sampled every year
+# dt1_western_TPNO3_obs%>%
+#   dplyr::select(lagoslakeid, year)%>%
+#   drop_na(year) %>%
+#   group_by(year) %>%
+#   summarize(n_lakes_sampled=length(unique(lagoslakeid))) %>%
+#   arrange(desc(n_lakes_sampled)) %>%
+#   ggplot(aes(x=as.numeric(as.character(year)), y=n_lakes_sampled, fill=year))+
+#   geom_bar(stat="identity",  color="black")+
+#   scale_fill_viridis_d()+
+#     theme(legend.position="none",
+#         axis.title.x=element_blank(),
+#         axis.text.x=element_text(angle = 45, hjust = 1, size=6))+
+#   ggtitle("Number of unique lakes sampled for BOTH TP & NO3 each year")+
+#     geom_text(aes(label = n_lakes_sampled),
+#               position=position_nudge(y=10), size=3)
+
+
+```
+
+Pretty depressing just how FEW lakes in the western US are sampled every year for TP or NO3, and in recent years those numbers seem to actually be *decreasing*! 
+
+\newpage
+#### Observations by EPA nutrient region
+
+Let's take a look at how the sites are distributed by nutrient region. 
+
+```{r spatial maps TP EPA zone 1, echo=FALSE, message=FALSE, warning=FALSE,out.width = '50%', out.height='50%'}
+ggplot()+
+    geom_sf(data = us,color = "black")+
+      geom_polygon(data=states, aes(x=long, y=lat, group=group),
+               fill=NA, color="black",
+               linetype="dashed")+
+    geom_sf(data=rivers50, color="blue")+
+    annotation_scale(location = "bl", width_hint = 0.5) +
+    # annotation_north_arrow(location = "bl", which_north = "true", 
+    #     pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+    #     style = north_arrow_fancy_orienteering) +
+    coord_sf(xlim = c(-130, -100), ylim = c(32, 49), expand=TRUE)+
+  geom_point(data=dt1_western_summary %>%
+               drop_na(tp_ugl_median, no2no3n_ugl_median), aes(lake_lon_decdeg, lake_lat_decdeg, fill=epanutr_zoneid, shape=lake_rsvr_class),
+              size=2.5)+
+  scale_fill_manual(values=c("#7f4f24","#b6ad90","#606c38","#dda15e"),
+                    # labels=c("N. Plains","S. Plains","Western Mtns","Xeric"),
+                    name="EPA zone ID")+
+      scale_shape_manual(values=c(21,25),
+                       name="Lake type")+
+  ggtitle("All sites with TP & NO3 data - EPA zone")+
+  theme_classic()+
+      guides(fill = guide_legend(override.aes=list(shape=21))) #So fill color shows up in legend
+
+dt1_western_summary%>%
+  drop_na(decade_sampled)%>%
+  drop_na(tp_ugl_median,no2no3n_ugl_median)%>%
+  group_by(epanutr_zoneid) %>%
+  ggplot(aes(x=epanutr_zoneid, y=log10(tp_ugl_median), fill=epanutr_zoneid)) +
+  scale_fill_manual(values=c("#7f4f24","#b6ad90","#606c38","#dda15e"),
+                    labels=c("N. Plains","S. Plains","Western Mtns","Xeric"),
+                    name="EPA zone ID")+
+  geom_boxplot(outlier.shape = NA)+
+  theme(axis.title.x = element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())+
+    stat_summary(fun.data = n_fun, geom = "text") 
+  # facet_wrap(~lake_centroidstate)
+
+
+ggplot()+
+    geom_sf(data = us,color = "black")+
+      geom_polygon(data=states, aes(x=long, y=lat, group=group),
+               fill=NA, color="black",
+               linetype="dashed")+
+    geom_sf(data=rivers50, color="blue")+
+    annotation_scale(location = "bl", width_hint = 0.5) +
+    # annotation_north_arrow(location = "bl", which_north = "true", 
+    #     pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+    #     style = north_arrow_fancy_orienteering) +
+    coord_sf(xlim = c(-130, -100), ylim = c(32, 49), expand=TRUE)+
+  geom_point(data=dt1_western_summary %>%
+               drop_na(tp_ugl_median, no2no3n_ugl_median), aes(lake_lon_decdeg, lake_lat_decdeg, fill=neon_zoneid, shape=lake_rsvr_class),
+              size=2.5)+
+      scale_shape_manual(values=c(21,25),
+                       name="Lake type")+
+  ggtitle("All sites with TP & NO3 data - WWF zone id")+
+  theme_classic()+
+      guides(fill = guide_legend(override.aes=list(shape=21))) #So fill color shows up in legend
+
+dt1_western_summary %>%
+  drop_na(tp_ugl_median, no2no3n_ugl_median) %>%
+  summarize(n_omernik=length(unique(neon_zoneid)))
+```
+
+```{r spatial maps NO3 EPA zone 2, echo=FALSE, message=FALSE, warning=FALSE,out.width = '50%', out.height='50%'}
+ggplot()+
+    geom_sf(data = us,color = "black")+
+      geom_polygon(data=states, aes(x=long, y=lat, group=group),
+               fill=NA, color="black",
+               linetype="dashed")+
+    geom_sf(data=rivers50, color="lightblue")+
+    annotation_scale(location = "bl", width_hint = 0.5) +
+    annotation_north_arrow(location = "bl", which_north = "true", 
+        pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+        style = north_arrow_fancy_orienteering) +
+    coord_sf(xlim = c(-130, -100), ylim = c(32, 49), expand=TRUE)+
+  geom_point(data=dt1_western_summary %>%
+               drop_na(no2no3n_ugl_median), aes(lake_lon_decdeg, lake_lat_decdeg, fill=epanutr_zoneid),
+             shape=21, size=2.5)+
+  scale_fill_manual(values=c("#7f4f24","#b6ad90","#606c38","#dda15e"),
+                    labels=c("N. Plains","S. Plains","Western Mtns","Xeric"),
+                    name="EPA zone ID")+
+  ggtitle("All sites with NO3 data - EPA zone")+
+  theme_classic()
+
+dt1_western_summary%>%
+  drop_na(decade_sampled)%>%
+  drop_na(tp_ugl_median)%>%
+  group_by(epanutr_zoneid) %>%
+  ggplot(aes(x=epanutr_zoneid, y=log10(no2no3n_ugl_median), fill=epanutr_zoneid)) +
+  scale_fill_manual(values=c("#7f4f24","#b6ad90","#606c38","#dda15e"),
+                    labels=c("N. Plains","S. Plains","Western Mtns","Xeric"),
+                    name="EPA zone ID")+
+  geom_boxplot(outlier.shape = NA)+
+  theme(axis.title.x = element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())+
+    stat_summary(fun.data = n_fun, geom = "text") 
+```
+
+Most of the sitse are in the "western mountains" region. There are LOTS of different ways we can classify these sites, including categories that are included in the LAGOS-US database (like Bailey, WWF, Omernik3, MLRA zone IDs). Eventually we will have to think about a sensible geographic cut off for the sites because currently I just filtered out all the lakes in CA, UT, NV, WA, OR, ID, MT, WY, CO, NM, and AZ.
+
+And of course, beyond categorical variables we can look at how the underlying climate (which will influence things like lake inflows, evaporation, vegetation of surroundings, lake drawdown, etc) influences water chemistry. See section \@ref(climate) later in the document. 
+
+\newpage
+## Patterns in western US hydrology/networks
+
+In the entire western U.S. region, there are a total of `r dt1_western %>% summarize(n_networks=length(unique(net_id))) %>% pull()` lake networks, according to the LAGOS-US NETS database. Just narrowing it down to the sites where we have both NO3 + Total P data, those lakes fall into  `r dt1_western_summary %>% drop_na(tp_ugl_median, no2no3n_ugl_median)%>% summarize(n_networks=length(unique(net_id))) %>% pull()` distinct networks. 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,out.width = '50%', out.height='50%'}
+ggplot()+
+    geom_sf(data = us,color = "black")+
+      geom_polygon(data=states, aes(x=long, y=lat, group=group),
+               fill=NA, color="black",
+               linetype="dashed")+
+    # geom_sf(data=rivers50, color="lightblue")+  
+    annotation_scale(location = "bl", width_hint = 0.5) +
+    annotation_north_arrow(location = "bl", which_north = "true", 
+        pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+        style = north_arrow_fancy_orienteering) +
+    coord_sf(xlim = c(-130, -100), ylim = c(32, 49), expand=TRUE)+
+  geom_point(data=dt1_western_summary %>%
+               drop_na(tp_ugl_median), aes(lake_lon_decdeg, lake_lat_decdeg, fill=net_id),
+             shape=21, size=2.5)+
+  theme_classic()+
+  theme(legend.position="none")+
+  scale_fill_viridis_d()
+
+ggplot()+
+    geom_sf(data = us,color = "black")+
+      geom_polygon(data=states, aes(x=long, y=lat, group=group),
+               fill=NA, color="black",
+               linetype="dashed")+
+    geom_sf(data=rivers50, color="lightblue")+
+    annotation_scale(location = "bl", width_hint = 0.5) +
+    annotation_north_arrow(location = "bl", which_north = "true", 
+        pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+        style = north_arrow_fancy_orienteering) +
+    coord_sf(xlim = c(-130, -100), ylim = c(32, 49), expand=TRUE)+
+  geom_point(data=dt1_western_summary %>%
+               drop_na(tp_ugl_median) %>%
+               filter(net_id %in% c("1","34","3")), aes(lake_lon_decdeg, lake_lat_decdeg, fill=net_id),
+             shape=21, size=2.5)+
+  theme_classic()+
+  theme(legend.position="none")+
+  scale_fill_viridis_d()
+
+##How many lakes in each network?
+dt1_western %>%
+  drop_na(tp_ugl_median, no2no3n_ugl_median) %>%
+  mutate(year=as.numeric(as.character(year)))%>%
+  filter(year>=2010)%>%
+  group_by(net_id) %>%
+  summarize(n_lakes=length(unique(lagoslakeid))) %>%
+  arrange(desc(n_lakes)) %>%
+  filter(!is.na(net_id)) %>%
+  slice_head(n=10)
+
+```
+
+Most of those lakes fall into 3 river networks (Network 34 = 279 lakes, network 1 = 246 lakes, and network 3 = 231 lakes), which I believe are the Mississipii, Columbia, and Sacramento–San Joaquin River (?) river basins. 
+
+We can also look at the lakes by "connectivity class." As a reminder, this is how those classes are defined:
+
+![*Visual characterization of lake connectivity class, from Cheruvelil et al. 2021*](~/Dropbox/dropbox Research/Modelscape/modelscape/images/Cheruveliletal2021_Fig6.png)
+
+How many lakes fall into each category? And how do TP concentrations vary by lake connectivity class?
+
+```{r conn class TP, echo=FALSE, message=FALSE, warning=FALSE,out.width = '50%', out.height='50%'}
+
+dt1_western_summary%>%
+  drop_na(tp_ugl_median)%>%
+  mutate(lake_connectivity_class = factor(lake_connectivity_class,
+                                          levels=c("Drainage","DrainageLk",
+                                                   "Headwater","Isolated",
+                                                   "Terminal","TerminalLk"))) %>%
+  group_by(lake_connectivity_class) %>%
+  ggplot(aes(x=lake_connectivity_class, y=log10(tp_ugl_median), fill=lake_connectivity_class)) +
+  geom_boxplot(outlier.shape = NA)+
+    theme(legend.position="none",
+        axis.title.x=element_blank(),
+        axis.text.x=element_text(angle = 45, hjust = 1, size=10))+
+    stat_summary(fun.data = n_fun, geom = "text") +
+  geom_jitter(alpha=0.5, shape=21, width=0.15)+
+  scale_fill_discrete_diverging()+
+  ylab("Log10 median TP (ug/L)")
+
+# dt1_western_summary%>%
+#   drop_na(tp_ugl_median)%>%
+#   group_by(lake_connectivity_class) %>%
+#     filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+#                                                    "Headwater")) %>%
+#     ggplot(aes(x = lake_elevation_m, color = lake_connectivity_class, group = lake_connectivity_class))+
+#     geom_density(alpha=0.5)+
+#   stat_summary(
+#         aes(y = lake_elevation_m, x = 0, fill = lake_connectivity_class),
+#         geom = 'rect',
+#         fun.data = density_ci(dt1_western_summary$lake_elevation_m),
+#         size=1)+
+#   stat_summary(
+#         aes(y = lake_elevation_m, x = 0),
+#         geom = 'rect',
+#         fun.data = density_mean_line(dt1_western_summary$lake_elevation_m),
+#         key_glyph = "vline",
+#         size = 0.5,
+#         color='grey20')+
+#   theme(axis.text.x=element_text(angle = 45, hjust = 1, size=10))+
+#   scale_fill_discrete_diverging()+
+#   scale_color_discrete_diverging()+
+#   ylab("Density")+xlab("Elevation (m)")
+# 
+
+
+# plot
+grouped_gghistostats(
+  data = dt1_western_summary %>%
+    drop_na(tp_ugl_median) %>%
+                filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+                mutate(lake_connectivity_class = factor(lake_connectivity_class,
+                                                        levels=c("Headwater","Drainage","DrainageLk"))),
+  x = lake_elevation_m,
+  # test.value = 50,
+  # type = "nonparametric",
+  results.subtitle=FALSE,
+  xlab = "Elevation (m)",
+  grouping.var = lake_connectivity_class, # grouping variable
+  normal.curve = TRUE, # superimpose a normal distribution curve
+  normal.curve.args = list(color = "red", size = 1),
+  ggtheme = ggthemes::theme_pander(),
+  # modify the defaults from `ggstatsplot` for each plot
+  # ggplot.component = ggplot2::labs(caption = "Source: IMDB.com"),
+  plotgrid.args = list(nrow = 1),
+  annotation.args = list(title = "Elevation distribution by lake connectivity class",
+                         subtitle="Lakes with total P data")
+)
+
+
+grouped_gghistostats(
+  data = dt1_western_summary %>% drop_na(tp_ugl_median) ,
+  x = lake_elevation_m,
+  # test.value = 50,
+  # type = "nonparametric",
+  results.subtitle=FALSE,
+  xlab = "Elevation (m)",
+  grouping.var = lake_rsvr_class, # grouping variable
+  normal.curve = TRUE, # superimpose a normal distribution curve
+  normal.curve.args = list(color = "red", size = 1),
+  ggtheme = ggthemes::theme_pander(),
+  # modify the defaults from `ggstatsplot` for each plot
+  # ggplot.component = ggplot2::labs(caption = "Source: IMDB.com"),
+  plotgrid.args = list(nrow = 1),
+  annotation.args = list(title = "Elevation distribution by lake type",
+                         subtitle="Lakes with TP data")
+)
+```
+
+Most lakes with TP data in the west are drainage lakes or drainage lakes with a lake upstream of it ("DrainageLk"). About `r round((90/(698+373+90+9+8+3))*100, 1)`% of the lakes are headwater lakes with a very small number of isolated or terminal lakes. Headwater lakes tend to have higher TP concentrations than drainage lakes, and drainages lakes with a lake located upstream tend to have slightly lower concentrations of TP on compared to drainage lakes without an upstream lake. Headwater lakes tend to be the highest elevation unsurprisingly, but drainage lakes span basically the entire elevation range in the dataset.However, if you look at the density graphs and the scattered points around each boxplot, you can see that there is some clustering of points. For example, there is a very *wide* spread in the TP values of headwater lakes, and I would venture to guess that the lower TP concentration headwater lakes are located way up in the mountains. 
+We see a similar number of lakes by size class with NO3 data, but as you'll see the spatial and connectivity patterns are different.
+
+```{r conn class NO3, echo=FALSE, message=FALSE, warning=FALSE,out.width = '50%', out.height='50%'}
+
+dt1_western_summary%>%
+  drop_na(no2no3n_ugl_median)%>%
+  mutate(lake_connectivity_class = factor(lake_connectivity_class,
+                                          levels=c("Drainage","DrainageLk",
+                                                   "Headwater","Isolated",
+                                                   "Terminal","TerminalLk"))) %>%
+  group_by(lake_connectivity_class) %>%
+  ggplot(aes(x=lake_connectivity_class, y=log10(no2no3n_ugl_median), fill=lake_connectivity_class)) +
+  geom_boxplot(outlier.shape = NA)+
+    theme(legend.position="none",
+        axis.title.x=element_blank(),
+        axis.text.x=element_text(angle = 45, hjust = 1, size=10))+
+    stat_summary(fun.data = n_fun, geom = "text") +
+  geom_jitter(alpha=0.5, shape=21)+
+  scale_fill_discrete_diverging()
+
+
+grouped_gghistostats(
+  data = dt1_western_summary %>%
+    drop_na(no2no3n_ugl_median) %>%
+                filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+                mutate(lake_connectivity_class = factor(lake_connectivity_class,
+                                                        levels=c("Headwater","Drainage","DrainageLk"))),
+  x = lake_elevation_m,
+  # test.value = 50,
+  # type = "nonparametric",
+  results.subtitle=FALSE,
+  xlab = "Elevation (m)",
+  grouping.var = lake_connectivity_class, # grouping variable
+  normal.curve = TRUE, # superimpose a normal distribution curve
+  normal.curve.args = list(color = "red", size = 1),
+  ggtheme = ggthemes::theme_pander(),
+  # modify the defaults from `ggstatsplot` for each plot
+  # ggplot.component = ggplot2::labs(caption = "Source: IMDB.com"),
+  plotgrid.args = list(nrow = 1),
+  annotation.args = list(title = "Elevation distribution by lake connectivity class",
+                         subtitle="Lakes with NO3 data")
+)
+
+
+
+grouped_gghistostats(
+  data = dt1_western_summary %>% drop_na(no2no3n_ugl_median) ,
+  x = lake_elevation_m,
+  # test.value = 50,
+  # type = "nonparametric",
+  results.subtitle=FALSE,
+  xlab = "Elevation (m)",
+  grouping.var = lake_rsvr_class, # grouping variable
+  normal.curve = TRUE, # superimpose a normal distribution curve
+  normal.curve.args = list(color = "red", size = 1),
+  ggtheme = ggthemes::theme_pander(),
+  # modify the defaults from `ggstatsplot` for each plot
+  # ggplot.component = ggplot2::labs(caption = "Source: IMDB.com"),
+  plotgrid.args = list(nrow = 1),
+  annotation.args = list(title = "Elevation distribution by lake type",
+                         subtitle="Lakes with NO3 data")
+)
+
+
+# dt1_western_summary%>%
+#   drop_na(no2no3n_ugl_median)%>%
+#   group_by(lake_connectivity_class) %>%
+#     filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+#                                                    "Headwater")) %>%
+#     ggplot(aes(x = lake_elevation_m, color = lake_connectivity_class, group = lake_connectivity_class))+
+#     geom_density(alpha=0.5)+
+#   stat_summary(
+#         aes(y = lake_elevation_m, x = 0, fill = lake_connectivity_class),
+#         geom = 'rect',
+#         fun.data = density_ci(dt1_western_summary$lake_elevation_m),
+#         size=1)+
+#   stat_summary(
+#         aes(y = lake_elevation_m, x = 0),
+#         geom = 'rect',
+#         fun.data = density_mean_line(dt1_western_summary$lake_elevation_m),
+#         key_glyph = "vline",
+#         size = 0.5,
+#         color='grey20')+
+#   theme(axis.text.x=element_text(angle = 45, hjust = 1, size=10))+
+#   scale_fill_discrete_diverging()+
+#   scale_color_discrete_diverging()+
+#   ylab("Density")+xlab("Elevation (m)")
+```
+
+*Because most of the lakes are Drainage, DrainageLk, or Headwater, I filtered out the other types for sake of visualization in the rest of the plots*
+
+\newpage
+# Spatial patterns in TP and NO3 concentrations 
+
+## Elevation and connectivity classs 
+
+I was curious whether or not we see any consistent patterns of TP or NO3 with elevation, and whether those patterns vary depending on the hydrologic connectivity of the waterbody. 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,out.width = '100%', out.height='40%'}
+
+dt1_western_summary %>%
+  drop_na(tp_ugl_median)%>%
+      filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+  ggplot(aes(x=lake_elevation_m, y=log10(tp_ugl_median), color=lake_connectivity_class,
+               fill=lake_connectivity_class))+
+  geom_point(size=2.5, shape=21, alpha=0.5, color="black")+
+  facet_grid(lake_rsvr_class~lake_connectivity_class)+
+  geom_smooth(method="lm",se=F,size=0.5)+
+  theme(axis.text.x=element_text(angle = 45, hjust = 1, size=10))+
+  scale_fill_discrete_diverging()+
+  scale_color_discrete_diverging()+
+  ylab("Median TP concentrations (log10 ug/L)")+
+  xlab("Elevation (m)")+
+  theme(legend.position="none")
+
+dt1_western_summary %>%
+  drop_na(tp_ugl_median)%>%
+      filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+  ggplot(aes(x=lake_elevation_m, y=log10(tp_ugl_median), 
+             fill=log10(lake_totalarea_ha), color=log10(lake_totalarea_ha),
+             group=NA))+
+  geom_point(size=2.5, shape=21, alpha=0.5,
+             color="black")+
+  geom_smooth(method="lm",se=F,size=0.5)+
+  scale_fill_gradient(low = "yellow", high = "red", na.value = NA)+
+  # scale_fill_discrete_diverging()+
+  # scale_color_discrete_diverging()+
+  theme(axis.text.x=element_text(angle = 45, hjust = 1, size=10))+
+  facet_wrap(~lake_rsvr_class)+
+  ylab("Median TP concentrations (log10 ug/L)")
+
+
+dt1_western_summary%>%
+  # drop_na(tp_ugl_median)%>%
+  mutate(lake_connectivity_class = factor(lake_connectivity_class,
+                                          levels=c("Drainage","DrainageLk",
+                                                   "Headwater","Isolated",
+                                                   "Terminal","TerminalLk"))) %>%
+  group_by(lake_connectivity_class) %>%
+  ggplot(aes(x=lake_connectivity_class, y=(lake_elevation_m), fill=lake_connectivity_class)) +
+  geom_boxplot(outlier.shape = NA)+
+    theme(legend.position="none",
+        axis.title.x=element_blank(),
+        axis.text.x=element_text(angle = 45, hjust = 1, size=10))+
+    stat_summary(fun.data = n_fun, geom = "text") +
+  geom_jitter(alpha=0.5, shape=21, width=0.15)+
+  scale_fill_discrete_diverging()
+
+
+```
+
+TP concentrations increase as you move up in elevation in the three most abundant connectivity classes
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,out.width = '100%', out.height='40%'}
+
+dt1_western_summary %>%
+  drop_na(no2no3n_ugl_median)%>%
+      filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+  ggplot(aes(x=lake_elevation_m, y=log10(no2no3n_ugl_median), color=lake_connectivity_class,
+               fill=lake_connectivity_class))+
+  geom_point(size=2.5, shape=21, alpha=0.5, color="black")+
+  facet_grid(lake_rsvr_class~lake_connectivity_class)+
+  geom_smooth(method="lm",se=F,size=0.5)+
+  theme(axis.text.x=element_text(angle = 45, hjust = 1, size=10))+
+  scale_fill_discrete_diverging()+
+  scale_color_discrete_diverging()+
+  ylab("Median NO3 concentrations (log10 ug/L)")+
+  xlab("Elevation (m)")+
+  theme(legend.position="none")
+```
+
+NO3 concentrations, on the other hand, do not show clear elevational patterns like TP does.
+
+## Upstream waterbodies
+
+Another feature of LAGOS both a count and total area of upstream waterbodies. Do upstream waterbodies impact TP and NO3 concentrations?
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, out.width='100%', out.height='50%'}
+dt1_western_summary %>% 
+  filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+  dplyr::select(tp_ugl_median,lake_rsvr_class,lake_connectivity_class, lake_lakes1ha_upstream_ha,
+                lake_lakes4ha_upstream_ha, lake_lakes10ha_upstream_ha) %>%
+  pivot_longer(-c(1:3))%>%
+  mutate(name=factor(name,
+                     levels=c("lake_lakes1ha_upstream_ha","lake_lakes4ha_upstream_ha","lake_lakes10ha_upstream_ha"),
+                     labels=c("Area >1 ha lakes","Area >4 ha lakes","Area >10 ha lakes"))) %>%
+  filter(value>0)%>%
+  ggplot(aes(x=log10(value), y=log10(tp_ugl_median), fill=lake_connectivity_class, color=lake_connectivity_class, shape=lake_rsvr_class))+
+  geom_point(size=2.5, color="black",  alpha=0.5)+
+  facet_grid(lake_connectivity_class~name, scales="free_x")+
+  # geom_smooth(method="lm",se=F)+
+  scale_fill_discrete_diverging()+
+  scale_color_discrete_diverging()+
+  scale_shape_manual(values=c(21,22))+
+  ylab("Median TP concentrations (log10 ug/L)")+
+  xlab("log10 Upstream lake area (ha)")+
+  theme(legend.position="top")+
+  guides(fill = guide_legend(override.aes=list(shape=21))) #So fill color shows up in legend
+
+
+```
+
+Not much of an impact of upstream lakes of any size on TP. 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, tidy=TRUE, out.width='100%', out.height='50%'}
+dt1_western_summary %>% 
+        filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+    # filter(lake_rsvr_class=="NL")%>%
+  dplyr::select(no2no3n_ugl_median,lake_rsvr_class,lake_connectivity_class, lake_lakes1ha_upstream_ha,
+                lake_lakes4ha_upstream_ha, lake_lakes10ha_upstream_ha) %>%
+  pivot_longer(-c(1:3))%>%
+  mutate(name=factor(name,
+                     levels=c("lake_lakes1ha_upstream_ha","lake_lakes4ha_upstream_ha","lake_lakes10ha_upstream_ha"),
+                     labels=c("Area >1 ha lakes","Area >4 ha lakes","Area >10 ha lakes"))) %>%
+  filter(value>0)%>%
+  ggplot(aes(x=log10(value), y=log10(no2no3n_ugl_median), fill=lake_connectivity_class,
+             color=lake_connectivity_class, shape=lake_rsvr_class, group=lake_connectivity_class))+
+  geom_point(size=2.5, color="black",  alpha=0.5)+
+  facet_grid(lake_connectivity_class~name, scales="free_x")+
+  geom_smooth(method="lm",se=F)+
+  scale_fill_discrete_diverging()+
+  scale_color_discrete_diverging()+
+  scale_shape_manual(values=c(21,22))+
+  ylab("Median NO3 concentrations (log10 ug/L)")+
+  xlab("log10 Upstream lake area (ha)")+
+  theme(legend.position="top")+
+  guides(fill = guide_legend(override.aes=list(shape=21))) #So fill color shows up in legend
+
+
+lm1<-lm(log10(no2no3n_ugl_median+0.01)~lake_lakes10ha_upstream_ha, data=dt1_western_summary %>% filter(lake_connectivity_class=="DrainageLk"))
+tidy(lm1) %>%
+  mutate(group="DrainageLk",
+         predictor="log10 NO3")
+
+
+```
+
+In DrainageLks, NO3 concentrations appear to actually increase with greater upstream lake area. 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', out.height='40%'}
+dt1_western_summary %>% 
+  drop_na(tp_ugl_median)%>%
+        filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+  dplyr::select(lake_elevation_m,lake_connectivity_class, lake_lakes1ha_upstream_ha,
+                lake_lakes4ha_upstream_ha, lake_lakes10ha_upstream_ha) %>%
+  pivot_longer(-c(1:2))%>%
+  filter(value>0)%>%
+  mutate(name=factor(name,
+                     levels=c("lake_lakes1ha_upstream_ha","lake_lakes4ha_upstream_ha","lake_lakes10ha_upstream_ha"),
+                     labels=c("Area >1 ha lakes","Area >4 ha lakes","Area >10 ha lakes"))) %>%
+  ggplot(aes(y=log10(value), x=lake_elevation_m, fill=lake_connectivity_class, color=lake_connectivity_class))+
+  geom_point(size=2.5, shape=21, color="black",  alpha=0.5)+
+  facet_wrap(lake_connectivity_class~name, scales="free_x")+
+  geom_smooth(method="lm",se=F)+
+    scale_fill_discrete_diverging()+
+  scale_color_discrete_diverging()+
+  xlab("Lake elevation (m)")+
+  ylab("log10 Upstream lake area (ha)")+
+  theme(legend.position="none")  
+```
+  
+```{r, echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', out.height='40%'}
+dt1_western_summary %>% 
+        filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+  dplyr::select(lake_elevation_m,lake_connectivity_class, lake_lakes1ha_upstream_ha,
+                lake_lakes4ha_upstream_ha, lake_lakes10ha_upstream_ha) %>%
+  pivot_longer(-c(1:2))%>%
+  filter(value>0)%>%
+  mutate(name=factor(name,
+                     levels=c("lake_lakes1ha_upstream_ha","lake_lakes4ha_upstream_ha","lake_lakes10ha_upstream_ha"),
+                     labels=c("Area >1 ha lakes","Area >4 ha lakes","Area >10 ha lakes"))) %>%
+  ggplot(aes(y=log10(value), x=lake_elevation_m))+
+  geom_point(size=2.5, shape=21, color="black", fill="grey50", alpha=0.5)+
+  facet_wrap(lake_connectivity_class~name, scales="free_x")+
+  geom_smooth(method="lm",se=F, color="black")+
+  xlab("Lake elevation (m)")+
+  ylab("log10 Upstream lake area (ha)")
+
+```
+
+The above plots show patterns of upstream lake area by elevation in lakes with TP data (colored plots) and the greater population of lakes (b&w plots).
+
+So in summary, the general patterns are:
+
+- TP increases with increasing lake elevation
+- In DrainageLks (with upstream lakes >10 ha) you see decreasing upstream lake area with increasing elevation. 
+    - That's pretty intuitive to me, but interesting that there is *no* such pattern in Drainage lakes
+- N03 concentrations **increase** with increasing upstream lake area
+- NO3 doesn't show a distinct pattern with elevation, unlike TP. 
+
+## Hydrology 
+
+Whether or not lake levels fluctuate may be indicative of whether or not the lake is "natural" or manmade. Eventually LAGOS will publish a dataset that confirms this, but for now it may serve as a proxy. At first glance it would appear that in drainage lakes, lake level flucuations are associated with higher TP, though not dramatically so. 
+
+**Update 2021-10-04** Now that I have the Reservoir modules, I can see that whether the lake level fluctuates or not doesn't consistently correspond with whether or not it is NL or RSVR.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,out.width='70%', out.height='50%'}
+
+dt1_western_summary %>%
+  drop_na(no2no3n_ugl_median)%>%
+          filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+  ggplot(aes(x=lake_connectivity_fluctuates, y=log10(tp_ugl_median), fill=lake_connectivity_class))+
+  geom_boxplot(outlier.shape=NA)+
+  facet_grid(lake_rsvr_class~lake_connectivity_class)+
+  scale_fill_discrete_diverging()+
+  scale_color_discrete_diverging()+
+  stat_summary(fun.data = n_fun, geom = "text") +
+  geom_jitter(alpha=0.5, shape=21)+
+  theme(legend.position="none")+
+    ylab("Median TP concentrations (log10 ug/L)")
+
+dt1_western_summary %>%
+  drop_na(tp_ugl_median)%>%
+          filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+  ggplot(aes(x=lake_connectivity_fluctuates, y=log10(no2no3n_ugl_median), fill=lake_connectivity_class))+
+  geom_boxplot(outlier.shape=NA)+
+  facet_grid(lake_rsvr_class~lake_connectivity_class)+
+  scale_fill_discrete_diverging()+
+  scale_color_discrete_diverging()+
+  stat_summary(fun.data = n_fun, geom = "text") +
+  geom_jitter(alpha=0.5, shape=21)+
+  theme(legend.position="none")+
+    ylab("Median NO3 concentrations (log10 ug/L)")
+```
+
+Watershed area to lake area is a decent proxy for hydrologic residence time. How does that vary with connectivity class?
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', out.height='40%'}
+#Any scaling relationships between lake connectivity class and lake size, watershed area?
+dt1_western_summary %>%
+  filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+  drop_na(tp_ugl_median, no2no3n_ugl_median)%>%
+  mutate(WALA=(ws_area_ha-lake_totalarea_ha)/lake_totalarea_ha)%>%
+  ggplot(aes(x=lake_rsvr_class, y=log10(WALA), fill=lake_connectivity_class))+
+  geom_boxplot(outlier.shape=NA)+
+  scale_fill_viridis_d()+
+  facet_wrap(~lake_connectivity_class)+
+    stat_summary(fun.data = n_fun, geom = "text") +
+  ylab("log10 WSA:LA")
+
+
+# plot
+ggbetweenstats(
+  data = dt1_western_summary %>%
+      drop_na(tp_ugl_median, no2no3n_ugl_median)%>%
+    mutate(WALA=log10(((ws_area_ha-lake_totalarea_ha)/lake_totalarea_ha+0.1))) %>%
+    filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")),
+  x = lake_connectivity_class,
+  y = WALA,
+  outlier.tagging = TRUE, # whether outliers need to be tagged
+  outlier.label = lake_namelagos, # variable to be used for tagging outliers
+  outlier.coef = 2,
+  grouping.var = lake_connectivity_class, # grouping variable
+    pairwise.comparisons = TRUE,
+  pairwise.display = "all",
+  type="nonparametric",
+  ggsignif.args = list(textsize = 4, tip_length = 0.01),
+  p.adjust.method = "bonferroni", # method for adjusting p-values for multiple comparisons
+  # adding new components to `ggstatsplot` default
+  plotgrid.args = list(nrow = 1),
+  title = "Differences in drainage ratio by connectivity class"
+) 
+
+
+# plot
+ggbetweenstats(
+  data = dt1_western_summary %>%
+      drop_na(tp_ugl_median, no2no3n_ugl_median)%>%
+    mutate(WALA=log10(((ws_area_ha-lake_totalarea_ha)/lake_totalarea_ha+0.1))),
+  x = lake_rsvr_class,
+  y = WALA,
+  outlier.tagging = TRUE, # whether outliers need to be tagged
+  outlier.label = lake_namelagos, # variable to be used for tagging outliers
+  outlier.coef = 2,
+  grouping.var = lake_connectivity_class, # grouping variable
+    pairwise.comparisons = TRUE,
+  pairwise.display = "all",
+  type="nonparametric",
+  ggsignif.args = list(textsize = 4, tip_length = 0.01),
+  p.adjust.method = "bonferroni", # method for adjusting p-values for multiple comparisons
+  # adding new components to `ggstatsplot` default
+  plotgrid.args = list(nrow = 1),
+  title = "Differences in drainage ratio by lake type"
+) 
+
+
+# dt1_western_summary %>%
+# 
+#   drop_na(tp_ugl_median, no2no3n_ugl_median)%>%
+#   mutate(WALA=(ws_area_ha-lake_totalarea_ha)/lake_totalarea_ha)%>%
+#   ggplot(aes(x=lake_rsvr_class, y=log10(WALA), fill=lake_rsvr_class))+
+#   geom_boxplot(outlier.shape=NA)+
+#   scale_fill_discrete()+
+#   stat_summary(fun.data = n_fun, geom = "text") +
+#   ylab("log10 WSA:LA")
+```
+
+This also makes sense. We would expect Headwater lakes to generally have smaller WSA:LA and longer residence times. It also makes sense that DrainageLk's would have generally higher WSA:LA than Drainage. And on average, WSA:LA is larger in reservoirs than natural lakes. 
+
+
+<!-- # ```{r, echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', out.height='70%'} -->
+<!-- # dt1_western_summary %>% -->
+<!-- #             filter(lake_connectivity_class %in% c("Drainage","DrainageLk", -->
+<!-- #                                                    "Headwater")) %>% -->
+<!-- #   drop_na(tp_ugl_median)%>% -->
+<!-- #   ggplot(aes(x=log10(lake_totalarea_ha), y=log10(ws_area_ha), color=lake_rsvr_class,fill=lake_rsvr_class))+ -->
+<!-- #   geom_point(shape=21, color="black")+ -->
+<!-- #   scale_fill_viridis_d()+ -->
+<!-- #   scale_color_viridis_d()+ -->
+<!-- #   facet_wrap(~lake_connectivity_class)+ -->
+<!-- #   geom_smooth(method="lm",se=F)+ -->
+<!-- #   theme(legend.position="none")+ -->
+<!-- #   ylab("log10 WSA")+ -->
+<!-- #   ylab("log10 LA") -->
+<!-- #  -->
+<!-- #  -->
+<!-- # ``` -->
+
+
+Is there a correlation between TP or NO3 and WSA:LA? 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,out.width='50%', out.height='70%'}
+dt1_western_summary %>%
+            filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+  drop_na(no2no3n_ugl_median,tp_ugl_median)%>%
+    mutate(WALA=(ws_area_ha-lake_totalarea_ha)/lake_totalarea_ha)%>%
+  ggplot(aes(x=log10(WALA), y=log10(tp_ugl_median), color=lake_connectivity_class,fill=lake_connectivity_class))+
+  geom_point(shape=21, color="black")+
+  scale_fill_viridis_d()+
+  scale_color_viridis_d()+
+  facet_grid(lake_rsvr_class~lake_connectivity_class)+
+  # geom_smooth(method="lm",se=F)+
+  theme(legend.position="none")+
+  ylab("log10 TP (ug/L)")+
+  xlab("log10 WA:LA")
+
+dt1_western_summary %>%
+            filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+  drop_na(no2no3n_ugl_median,tp_ugl_median)%>%
+    mutate(WALA=(ws_area_ha-lake_totalarea_ha)/lake_totalarea_ha)%>%
+  ggplot(aes(x=log10(WALA), y=log10(no2no3n_ugl_median), color=lake_connectivity_class,fill=lake_connectivity_class))+
+  geom_point(shape=21, color="black")+
+  scale_fill_viridis_d()+
+  scale_color_viridis_d()+
+  facet_grid(lake_rsvr_class~lake_connectivity_class)+
+  # geom_smooth(method="lm",se=F)+
+  theme(legend.position="none")+
+  ylab("log10 NO3 (ug/L)")+
+  xlab("log10 WA:LA")
+```
+
+Hard to say with any certainty for TP, but there appars to be a fairly strong relationship of increasing NO3 concentration with increasing WSA:LA. I wouldn't put to much stock in the patterns we see with the Headwater lakes just because the range of WSA:LA values is so low. 
+
+
+### Dams
+```{r, echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', out.height='30%'}
+dt1_western_summary %>%
+            filter(lake_connectivity_class %in% c("Drainage","DrainageLk")) %>%
+  drop_na(tp_ugl_median)%>%
+        filter(lake_nets_nearestdamup_km>0)%>%
+  ggplot(aes(x=(lake_nets_nearestdamup_km), y=log10(tp_ugl_median), fill=lake_connectivity_class))+
+  geom_point(shape=21, size=2.5, color="black")+
+  scale_fill_manual(values=c("#03045e","grey80"))+
+    # theme(legend.position="none")+
+    ylab("Median TP concentrations (log10 ug/L)")+
+xlab("Distance to nearest upstream dam (km)") +
+
+dt1_western_summary %>%
+            filter(lake_connectivity_class %in% c("Drainage","DrainageLk")) %>%
+  drop_na(no2no3n_ugl_median)%>%
+      filter(lake_nets_nearestdamup_km>0)%>%
+  ggplot(aes(x=(lake_nets_nearestdamup_km), y=log10(no2no3n_ugl_median), fill=lake_connectivity_class))+
+  geom_point(shape=21, size=2.5, color="black")+
+  scale_fill_manual(values=c("#03045e","grey80"))+
+    # theme(legend.position="none")+
+    ylab("Median NO3 concentrations (log10 ug/L)")+
+  xlab("Distance to nearest upstream dam (km)")
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', out.height='30%'}
+
+dt1_western_summary %>%
+            filter(lake_connectivity_class %in% c("Drainage","DrainageLk")) %>%
+  drop_na(tp_ugl_median)%>%
+  filter(lake_nets_nearestdamdown_km>0)%>%
+  ggplot(aes(x=(lake_nets_nearestdamdown_km), y=log10(tp_ugl_median), fill=lake_connectivity_class, shape=lake_rsvr_class))+
+  geom_point(size=2.5, color="black")+
+  scale_fill_manual(values=c("#03045e","grey80"))+
+    scale_shape_manual(values=c(21,22))+
+  # theme(legend.position="none")+
+  ylab("Median TP concentrations (log10 ug/L)")+
+  xlab("Distance to nearest downstream dam (km)") +
+
+dt1_western_summary %>%
+            filter(lake_connectivity_class %in% c("Drainage","DrainageLk")) %>%
+  drop_na(no2no3n_ugl_median)%>%
+    filter(lake_nets_nearestdamdown_km>0)%>%
+  ggplot(aes(x=(lake_nets_nearestdamdown_km), y=log10(no2no3n_ugl_median), fill=lake_connectivity_class, shape=lake_rsvr_class))+
+  geom_point(size=2.5, color="black")+
+  scale_fill_manual(values=c("#03045e","grey80"))+
+  scale_shape_manual(values=c(21,22))+
+    # theme(legend.position="none")+
+    ylab("Median NO3 concentrations (log10 ug/L)")+
+  xlab("Distance to nearest downstream dam (km)") 
+```
+
+There don't appear to be an obvious relationship between TP nor NO3 concentrations and distance to the nearest upstream nor downstream dam, but there is probably a better way to look at this. 
+
+### Reservoirs
+
+How many lakes in the western U.S. are reservoirs versus lakes?  Do reservoirs outnumber natural lakes? 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', out.height='30%'}
+sampled_lakes<-dt1_western_summary_2010s %>%
+  # left_join(., dt4, by="lagoslakeid")%>%
+  # filter(lake_centroidstate %in% c("CA", "UT", "NV",
+  #                                  "WA", "OR", "ID",
+  #                                  "MT", "WY", "CO",
+  #                                  "NM", "AZ")) %>%
+  group_by(lake_rsvr_class,lake_centroidstate) %>%
+  summarize(n=length(unique(lagoslakeid))) %>%
+  pivot_wider(names_from = "lake_rsvr_class", values_from = "n") %>%
+  mutate(total=NL+RSVR,
+         prop_RSVR=RSVR/total,
+         population="sampled_lakes") 
+
+all_lakes<-reservoir %>%
+  left_join(., dt4, by="lagoslakeid")%>%
+  filter(lake_centroidstate %in% c("CA", "UT", "NV",
+                                   "WA", "OR", "ID",
+                                   "MT", "WY", "CO",
+                                   "NM", "AZ")) %>%
+  group_by(lake_rsvr_class,lake_centroidstate) %>%
+  summarize(n=length(unique(lagoslakeid))) %>%
+  pivot_wider(names_from = "lake_rsvr_class", values_from = "n") %>%
+  mutate(total=NL+RSVR,
+         prop_RSVR=RSVR/total,
+         population="all_lakes")
+
+bind_rows(sampled_lakes,all_lakes)%>%
+  filter(lake_centroidstate %in% c("CA", "UT", "NV",
+                                   "WA", "OR", "ID",
+                                   "MT", "WY", "CO",
+                                   "NM", "AZ")) %>%
+  ggplot(aes(x=lake_centroidstate, y=prop_RSVR, fill=population))+
+  geom_bar(stat="identity", color="black", width=.5, position = "dodge")+
+  scale_fill_manual(values=c("blue","red"),
+                    labels = c("All Lakes", "Sampled lakes"),
+                    name="Legend:")+
+  labs(title="Proportion of lakes that are reservoirs",
+       subtitle="Western states only",
+       x="State",
+       y="% reservoirs")
+
+```
+
+What is the size distribution?
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', out.height='30%'}
+
+grouped_gghistostats(
+  data = dt1_western_summary %>% 
+    # drop_na(no2no3n_ugl_median) %>% 
+    mutate(lake_totalarea_ha=log10(lake_totalarea_ha)) ,
+  x = lake_totalarea_ha,
+  # test.value = 50,
+  # type = "nonparametric",
+  results.subtitle=FALSE,
+  xlab = "Lake area (log 10 ha)",
+  grouping.var = lake_rsvr_class, # grouping variable
+  normal.curve = TRUE, # superimpose a normal distribution curve
+  normal.curve.args = list(color = "red", size = 1),
+  ggtheme = ggthemes::theme_pander(),
+  # modify the defaults from `ggstatsplot` for each plot
+  # ggplot.component = ggplot2::labs(caption = "Source: IMDB.com"),
+  plotgrid.args = list(nrow = 1),
+  annotation.args = list(title = "Lake size distribution by lake type",
+                         subtitle="All lakes in western U.S.")
+)
+```
+
+Is there a difference between TP or NO3 concentrations in natural lakes (NL) versus rerservoirs (RSVR) in this dataset?
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', out.height='30%'}
+
+
+dt1_western_summary %>%
+  ggplot(aes(x=lake_rsvr_class, y=log10(tp_ugl_median), fill=lake_elevation_m))+
+  geom_boxplot(outlier.shape=NA,alpha=0.7) +
+  geom_violin(alpha=0.3,trim=FALSE) +
+  stat_summary(aes(fill=lake_rsvr_class),fun.y=mean, geom="point", shape=25, size=6, color="black") +
+  # facet_wrap(~lake_rsvr_class, scales="free_x", ncol=2)+
+  # scale_fill_discrete_diverging()+
+  # scale_color_discrete_diverging()+
+  scale_fill_few()+
+  scale_colour_few()+
+  geom_jitter(alpha=0.2, width=0.15, shape=21)+
+  stat_summary(fun.data = n_fun, geom = "text") +
+  theme(legend.position="none")+
+  ylab("Median TP concentrations (log10 ug/L)")+
+  ggtitle("TP")
+
+ggbetweenstats(
+  data = dt1_western_summary %>%
+      drop_na(tp_ugl_median, no2no3n_ugl_median)%>%
+    mutate(log10tp=log10(tp_ugl_median+0.1)),
+  x = lake_rsvr_class,
+  y = log10tp,
+  outlier.tagging = TRUE, # whether outliers need to be tagged
+  outlier.label = lake_namelagos, # variable to be used for tagging outliers
+  outlier.coef = 2,
+  grouping.var = lake_rsvr_class, # grouping variable
+  pairwise.comparisons = TRUE,
+  pairwise.display = "all",
+  type="nonparametric",
+  ggsignif.args = list(textsize = 4, tip_length = 0.01),
+  p.adjust.method = "bonferroni", # method for adjusting p-values for multiple comparisons
+  # adding new components to `ggstatsplot` default
+  plotgrid.args = list(nrow = 1),
+  title = "Differences in TP by lake type (only lakes with BOTH TP and NO3 data)",
+)
+
+ggbetweenstats(
+  data = dt1_western_summary %>%
+      drop_na(tp_ugl_median)%>%
+    mutate(log10tp=log10(tp_ugl_median+0.1)),
+  x = lake_rsvr_class,
+  y = log10tp,
+  outlier.tagging = TRUE, # whether outliers need to be tagged
+  outlier.label = lake_namelagos, # variable to be used for tagging outliers
+  outlier.coef = 2,
+  grouping.var = lake_rsvr_class, # grouping variable
+  pairwise.comparisons = TRUE,
+  pairwise.display = "all",
+  type="nonparametric",
+  ggsignif.args = list(textsize = 4, tip_length = 0.01),
+  p.adjust.method = "bonferroni", # method for adjusting p-values for multiple comparisons
+  # adding new components to `ggstatsplot` default
+  plotgrid.args = list(nrow = 1),
+  title = "Differences in TP by lake type (all lakes with TP, but some don't have NO3)",
+)
+
+
+dt1_western_summary %>%
+  ggplot(aes(x=lake_rsvr_class, y=log10(no2no3n_ugl_median), fill=lake_rsvr_class))+
+  geom_boxplot(outlier.shape=NA,alpha=0.7) +
+  geom_violin(alpha=0.3,trim=FALSE) +
+  stat_summary(aes(fill=lake_rsvr_class),fun.y=mean, geom="point", shape=25, size=6, color="black") +
+  facet_wrap(~lake_rsvr_class, scales="free_x", ncol=2)+
+  scale_fill_discrete_diverging()+
+  scale_color_discrete_diverging()+
+  geom_jitter(alpha=0.2, width=0.15,shape=21)+
+  stat_summary(fun.data = n_fun, geom = "text") +
+  theme(legend.position="none")+
+  ylab("Median NO3 concentrations (log10 ug N/L)")+
+  ggtitle("NO3")
+
+ggbetweenstats(
+  data = dt1_western_summary %>%
+      drop_na(tp_ugl_median, no2no3n_ugl_median)%>%
+    mutate(log10no3=log10(no2no3n_ugl_median+0.1)),
+  x = lake_rsvr_class,
+  y = log10no3,
+  outlier.tagging = TRUE, # whether outliers need to be tagged
+  outlier.label = lake_namelagos, # variable to be used for tagging outliers
+  outlier.coef = 2,
+  grouping.var = lake_rsvr_class, # grouping variable
+  pairwise.comparisons = TRUE,
+  pairwise.display = "all",
+  type="nonparametric",
+  ggsignif.args = list(textsize = 4, tip_length = 0.01),
+  p.adjust.method = "bonferroni", # method for adjusting p-values for multiple comparisons
+  # adding new components to `ggstatsplot` default
+  plotgrid.args = list(nrow = 1),
+  title = "Differences in NO3 by lake type (only lakes with BOTH TP and NO3 data)",
+)
+
+ggbetweenstats(
+  data = dt1_western_summary %>%
+      drop_na(no2no3n_ugl_median)%>%
+    mutate(log10no3=log10(no2no3n_ugl_median+0.1)),
+  x = lake_rsvr_class,
+  y = log10no3,
+  outlier.tagging = TRUE, # whether outliers need to be tagged
+  outlier.label = lake_namelagos, # variable to be used for tagging outliers
+  outlier.coef = 2,
+  grouping.var = lake_rsvr_class, # grouping variable
+  pairwise.comparisons = TRUE,
+  pairwise.display = "all",
+  type="nonparametric",
+  ggsignif.args = list(textsize = 4, tip_length = 0.01),
+  p.adjust.method = "bonferroni", # method for adjusting p-values for multiple comparisons
+  # adding new components to `ggstatsplot` default
+  plotgrid.args = list(nrow = 1),
+  title = "Differences in NO3 by lake type (all lakes with NO3, but some don't have TP)",
+)
+
+```
+
+Contrary to expectations, no difference between NL and RSVR according to Wilcoxon rank sum test (non-parametric alternative to the t.test). However, if you look at the distribution of TP values in NL, there are two peaks for relatively high and low TP lakes. NO3 is substantially higher in RSVRs. 
+
+```{r, message=FALSE, warning=FALSE,}
+#A statistical test to determine if there is a difference in total dissolved nitrogen in headwater vs drainage lakes
+#t.test(variable1, variable2)
+# t.test(sqrt((dt1_western_summary %>%
+#           filter(lake_rsvr_class == "NL"))$tp_ugl_median), #my first variable is total dissolved nitrogen from headwater lakes
+#        sqrt((dt1_western_summary %>%
+#           filter(lake_rsvr_class == "RSVR"))$tp_ugl_median)) #my second variable is total dissolved nitrogen from drainage lakes
+
+
+bind_rows(dt1_western_summary %>% 
+  wilcox_test(tp_ugl_median ~ lake_rsvr_class) %>%
+  add_significance() %>%
+  dplyr::select(.y., p, p.signif) %>%
+  mutate(group="All lake types"),
+
+dt1_western_summary %>% 
+  wilcox_test(no2no3n_ugl_median ~ lake_rsvr_class) %>%
+  add_significance() %>%
+  dplyr::select(.y., p, p.signif) %>%
+  mutate(group="All lake types"))
+```
+
+While TP concentrations do vary by lake connectivity class, within those classes there is no statistical difference between NL and RSVRs. We do see a difference in NO3 concentrations on average in DrainageLks, with higher concentrations in reservoirs in DrainageLks. 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,out.width='100%', out.height='30%'}
+dt1_western_summary %>%
+ filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+  ggplot(aes(x=lake_rsvr_class, y=log10(tp_ugl_median), fill=lake_connectivity_class))+
+  geom_boxplot(outlier.shape=NA,alpha=0.7) +
+  geom_violin(alpha=0.3,trim=FALSE) +
+  stat_summary(aes(fill=lake_connectivity_class),fun.y=mean, geom="point", shape=25, size=6, color="black") +
+  facet_wrap(lake_connectivity_class~., scales="free_x", ncol=3)+
+  scale_fill_discrete_diverging()+
+  scale_color_discrete_diverging()+
+  geom_jitter(alpha=0.2, shape=21, width=0.15)+
+  stat_summary(fun.data = n_fun, geom = "text") +
+  theme(legend.position="none")+
+  ggtitle("Total P")
+
+dt1_western_summary %>%
+ filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+  ggplot(aes(x=lake_rsvr_class, y=log10(no2no3n_ugl_median), fill=lake_connectivity_class))+
+  geom_boxplot(outlier.shape=NA,alpha=0.7) +
+  geom_violin(alpha=0.3,trim=FALSE) +
+  stat_summary(aes(fill=lake_connectivity_class),fun.y=mean, geom="point", shape=25, size=6, color="black") +
+  facet_wrap(lake_connectivity_class~., scales="free_x", ncol=3)+
+  scale_fill_discrete_diverging()+
+  scale_color_discrete_diverging()+
+  geom_jitter(alpha=0.2, shape=21, width=0.15)+
+  stat_summary(fun.data = n_fun, geom = "text") +
+  theme(legend.position="none")+
+  ggtitle("NO3")
+```
+
+Wilcoxon rank sum test results:
+
+```{r, message=FALSE, warning=FALSE,}
+
+bind_rows(dt1_western_summary %>% 
+   filter(lake_connectivity_class %in% c("Drainage")) %>%
+  wilcox_test(tp_ugl_median ~ lake_rsvr_class) %>%
+  add_significance() %>%
+  dplyr::select(.y., p, p.signif) %>%
+  mutate(group="Drainage"),
+
+dt1_western_summary %>% 
+   filter(lake_connectivity_class %in% c("Drainage")) %>%
+  wilcox_test(no2no3n_ugl_median ~ lake_rsvr_class) %>%
+  add_significance() %>%
+  dplyr::select(.y., p, p.signif) %>%
+  mutate(group="Drainage"),
+
+dt1_western_summary %>% 
+   filter(lake_connectivity_class %in% c("DrainageLk")) %>%
+  wilcox_test(tp_ugl_median ~ lake_rsvr_class) %>%
+  add_significance() %>%
+  dplyr::select(.y., p, p.signif) %>%
+  mutate(group="DrainageLk"),
+
+
+dt1_western_summary %>% 
+   filter(lake_connectivity_class %in% c("DrainageLk")) %>%
+  wilcox_test(no2no3n_ugl_median ~ lake_rsvr_class) %>%
+  add_significance() %>%
+  dplyr::select(.y., p, p.signif) %>%
+  mutate(group="DrainageLk")
+) %>%
+  arrange(.y.)
+
+```
+
+If we group by different EPA ecoregions, do we see a difference between NL and RSVR?
+
+```{r}
+
+dt1_western_summary %>%
+    mutate(epanutr_zoneid=factor(epanutr_zoneid,
+                     levels=c("epanutr_3","epanutr_5","epanutr_8","epanutr_9"),
+                     labels=c("N. Plains","S. Plains","Western Mtns","Xeric"))) %>%
+  ggplot(aes(x=lake_rsvr_class, y=log10(tp_ugl_median), fill=epanutr_zoneid))+
+  geom_boxplot(outlier.shape=NA,alpha=0.7) +
+  geom_violin(alpha=0.3,trim=FALSE) +
+  stat_summary(aes(fill=epanutr_zoneid),fun.y=mean, geom="point", shape=25, size=6, color="black") +
+
+  facet_wrap(epanutr_zoneid~., scales="free_x", ncol=2)+
+  scale_fill_manual(values=c("#7f4f24","#b6ad90","#606c38","#dda15e"),
+                    labels=c("N. Plains","S. Plains","Western Mtns","Xeric"),
+                    name="EPA zone ID")+
+  scale_color_manual(values=c("#7f4f24","#b6ad90","#606c38","#dda15e"),
+                    labels=c("N. Plains","S. Plains","Western Mtns","Xeric"),
+                    name="EPA zone ID")+
+  geom_jitter(alpha=0.5, shape=21, width=0.15)+
+  stat_summary(fun.data = n_fun, geom = "text") +
+  theme(legend.position="none")+
+  ggtitle("TP")
+
+dt1_western_summary %>%
+    mutate(epanutr_zoneid=factor(epanutr_zoneid,
+                     levels=c("epanutr_3","epanutr_5","epanutr_8","epanutr_9"),
+                     labels=c("N. Plains","S. Plains","Western Mtns","Xeric"))) %>%
+  ggplot(aes(x=lake_rsvr_class, y=log10(no2no3n_ugl_median), fill=epanutr_zoneid))+
+  geom_boxplot(outlier.shape=NA,alpha=0.7) +
+  geom_violin(alpha=0.3,trim=FALSE) +
+  stat_summary(aes(fill=epanutr_zoneid),fun.y=mean, geom="point", shape=25, size=6, color="black") +
+
+  facet_wrap(epanutr_zoneid~., scales="free_x", ncol=2)+
+  scale_fill_manual(values=c("#7f4f24","#b6ad90","#606c38","#dda15e"),
+                    labels=c("N. Plains","S. Plains","Western Mtns","Xeric"),
+                    name="EPA zone ID")+
+  scale_color_manual(values=c("#7f4f24","#b6ad90","#606c38","#dda15e"),
+                    labels=c("N. Plains","S. Plains","Western Mtns","Xeric"),
+                    name="EPA zone ID")+
+  geom_jitter(alpha=0.5, shape=21, width=0.15)+
+  stat_summary(fun.data = n_fun, geom = "text") +
+  theme(legend.position="none")+
+  ggtitle("NO3")
+```
+
+In the western mountains, we see higher NO3 concentrations in RSVRs compared to NLs (no difference for TP). In the Xeric region, we see higher TP in RSVRs than NLs, with no difference for NO3. Wilcoxin test results (not looking at S. and N. Plains because the sample sizes are so unbalanced):
+
+```{r}
+bind_rows(dt1_western_summary %>% 
+   filter(epanutr_zoneid %in% c("epanutr_8")) %>%
+  wilcox_test(tp_ugl_median ~ lake_rsvr_class) %>%
+  add_significance() %>%
+  dplyr::select(.y., p, p.signif) %>%
+  mutate(group="Western mts"),
+
+dt1_western_summary %>% 
+   filter(epanutr_zoneid %in% c("epanutr_8")) %>%
+  wilcox_test(no2no3n_ugl_median ~ lake_rsvr_class) %>%
+  add_significance() %>%
+  dplyr::select(.y., p, p.signif) %>%
+  mutate(group="Western mts"),
+
+dt1_western_summary %>% 
+   filter(epanutr_zoneid %in% c("epanutr_9")) %>%
+  wilcox_test(tp_ugl_median ~ lake_rsvr_class) %>%
+  add_significance() %>%
+  dplyr::select(.y., p, p.signif) %>%
+  mutate(group="Xeric"),
+
+
+dt1_western_summary %>% 
+   filter(epanutr_zoneid %in% c("epanutr_9")) %>%
+  wilcox_test(no2no3n_ugl_median ~ lake_rsvr_class) %>%
+  add_significance() %>%
+  dplyr::select(.y., p, p.signif) %>%
+  mutate(group="Xeric")
+) %>%
+  arrange(.y.)
+```
+
+Does the presense of upstream lakes vary predictably by NL or RSVR?
+
+```{r}
+dt1_western_summary %>% 
+  dplyr::select(tp_ugl_median,lake_rsvr_class, lake_lakes1ha_upstream_n,
+                lake_lakes4ha_upstream_n, lake_lakes10ha_upstream_n) %>%
+  pivot_longer(-c(1:2))%>%
+  mutate(name=factor(name,
+                     levels=c("lake_lakes1ha_upstream_n","lake_lakes4ha_upstream_n","lake_lakes10ha_upstream_n"),
+                     labels=c("n of >1 ha lakes","n of >4 ha lakes","n of >10 ha lakes"))) %>%
+  filter(value>0)%>%
+  ggplot(aes(x=log10(value), y=log10(tp_ugl_median), fill=lake_rsvr_class, color=lake_rsvr_class))+
+  geom_point(size=2.5, shape=21, color="black",  alpha=0.5)+
+  facet_grid(.~name, scales="free_x")+
+  geom_smooth(method="lm",se=F)+
+    scale_fill_discrete_diverging()+
+  scale_color_discrete_diverging()+
+  ylab("Median TP concentrations (log10 ug/L)")+
+  xlab("N of upstream lakes by area class (log10)")
+
+
+dt1_western_summary %>% 
+  dplyr::select(no2no3n_ugl_median,lake_rsvr_class, lake_lakes1ha_upstream_n,
+                lake_lakes4ha_upstream_n, lake_lakes10ha_upstream_n) %>%
+  pivot_longer(-c(1:2))%>%
+  mutate(name=factor(name,
+                     levels=c("lake_lakes1ha_upstream_n","lake_lakes4ha_upstream_n","lake_lakes10ha_upstream_n"),
+                     labels=c("n of >1 ha lakes","n of >4 ha lakes","n of >10 ha lakes"))) %>%
+  filter(value>0)%>%
+  ggplot(aes(x=log10(value), y=log10(no2no3n_ugl_median), fill=lake_rsvr_class, color=lake_rsvr_class))+
+  geom_point(size=2.5, shape=21, color="black",  alpha=0.5)+
+  facet_grid(.~name, scales="free_x")+
+  geom_smooth(method="lm",se=F)+
+    scale_fill_discrete_diverging()+
+  scale_color_discrete_diverging()+
+  ylab("Median NO3 concentrations (log10 ug/L)")+
+  xlab("N of upstream lakes by area class (log10)")
+```
+
+In both NL and RSVRs, the increasing number of upstream lakes leads to LOWER TP concentrations but higher NO3 concentrations.
+
+## Climate {#climate}
+
+### Mean annual precipitation 
+
+At first glance it doesn't appear to be a strong relationship between TP and 1981-2000 mean precipitation, but it would be interesting to eventually look at finer-scales such as winter precipitation or summer temperatures. For NO3, on the other hand, if you squint it does seem like wetter areas tend to high lower NO3 concentrations on average. 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, out.width='50%', out.height='70%'}
+dt1_western_summary%>%
+  left_join(.,PRISM_1981_2010, by="lagoslakeid")%>%
+              filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+  ggplot(aes(x=log10(Precip8110Cat), y=log10(tp_ugl_median), fill=lake_connectivity_class)) +
+  geom_point(size=2.5, shape=21)+
+  scale_fill_discrete_diverging()+
+  scale_color_discrete_diverging()+
+  facet_wrap(.~lake_connectivity_class, scales="free", nrow=3)+
+  theme(legend.position="none")+
+    ylab("Median TP concentrations (log10 ug/L)")+
+  xlab("1981-2000 Mean Annual Precipitation")
+
+dt1_western_summary%>%
+  left_join(.,PRISM_1981_2010, by="lagoslakeid")%>%
+              filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+  ggplot(aes(x=log10(Precip8110Cat), y=log10(no2no3n_ugl_median), fill=lake_connectivity_class)) +
+  geom_point(size=2.5, shape=21)+
+  scale_fill_discrete_diverging()+
+  scale_color_discrete_diverging()+
+  facet_wrap(.~lake_connectivity_class, scales="free", nrow=3)+
+  theme(legend.position="none")+
+    ylab("Median NO3 concentrations (log10 ug/L)")+
+  xlab("1981-2000 Mean Annual Precipitation")
+
+# dt1_western_summary%>%
+#   left_join(.,PRISM_1981_2010, by="lagoslakeid")%>%
+#               filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+#                                                    "Headwater")) %>%
+#     mutate(epanutr_zoneid=factor(epanutr_zoneid,
+#                                levels=c("epanutr_3","epanutr_5","epanutr_8","epanutr_9"),
+#                                labels=c("N. Plains","S. Plains","Western Mtns","Xeric")))%>%
+#   ggplot(aes(x=log10(Precip8110Cat), y=log10(tp_ugl_median), fill=epanutr_zoneid)) +
+#   geom_point(size=2.5, shape=21)+
+#   scale_fill_manual(values=c("#7f4f24","#b6ad90","#606c38","#dda15e"),
+#                     labels=c("N. Plains","S. Plains","Western Mtns","Xeric"),
+#                     name="EPA zone ID")+
+#   facet_wrap(.~epanutr_zoneid, scales="free", nrow=2)+
+#   theme(legend.position="none")+
+#     ylab("Median TP concentrations (log10 ug/L)")+
+#   xlab("1981-2000 Mean Annual Precipitation")
+# 
+# dt1_western_summary%>%
+#   left_join(.,PRISM_1981_2010, by="lagoslakeid")%>%
+#               filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+#                                                    "Headwater")) %>%
+#     mutate(epanutr_zoneid=factor(epanutr_zoneid,
+#                                levels=c("epanutr_3","epanutr_5","epanutr_8","epanutr_9"),
+#                                labels=c("N. Plains","S. Plains","Western Mtns","Xeric")))%>%
+#   ggplot(aes(x=log10(Precip8110Cat), y=log10(no2no3n_ugl_median), fill=epanutr_zoneid)) +
+#   geom_point(size=2.5, shape=21)+
+#   scale_fill_manual(values=c("#7f4f24","#b6ad90","#606c38","#dda15e"),
+#                     labels=c("N. Plains","S. Plains","Western Mtns","Xeric"),
+#                     name="EPA zone ID")+
+#   facet_wrap(.~epanutr_zoneid, scales="free", nrow=2)+
+#   theme(legend.position="none")+
+#     ylab("Median NO3 concentrations (log10 ug/L)")+
+#   xlab("1981-2000 Mean Annual Precipitation")
+```
+
+### Mean annual temperature 
+
+Similar story with temperature and TP... not seeing any immediate patterns popping out. But with NO3, in some areas or lake-types, you see higher concentrations in warmer climates. 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,out.width='50%', out.height='70%'}
+dt1_western_summary%>%
+  left_join(.,PRISM_1981_2010, by="lagoslakeid")%>%
+              filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+  ggplot(aes(x=log10(Tmean8110Cat), y=log10(tp_ugl_median), fill=lake_connectivity_class)) +
+  geom_point(size=2.5, shape=21)+
+  scale_fill_discrete_diverging()+
+  scale_color_discrete_diverging()+
+  facet_wrap(.~lake_connectivity_class, scales="free", nrow=3)+
+  theme(legend.position="none")+
+    ylab("Median TP concentrations (log10 ug/L)")+
+  xlab("1981-2000 Mean Annual Temperature")
+
+dt1_western_summary%>%
+  left_join(.,PRISM_1981_2010, by="lagoslakeid")%>%
+              filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+  ggplot(aes(x=log10(Tmean8110Cat), y=log10(no2no3n_ugl_median), fill=lake_connectivity_class)) +
+  geom_point(size=2.5, shape=21)+
+  scale_fill_discrete_diverging()+
+  scale_color_discrete_diverging()+
+  facet_wrap(.~lake_connectivity_class, scales="free", nrow=3)+
+  theme(legend.position="none")+
+    ylab("Median NO3 concentrations (log10 ug/L)")+
+  xlab("1981-2000 Mean Annual Temperature")
+
+# dt1_western_summary%>%
+#   left_join(.,PRISM_1981_2010, by="lagoslakeid")%>%
+#               filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+#                                                    "Headwater")) %>%
+#   mutate(epanutr_zoneid=factor(epanutr_zoneid,
+#                                levels=c("epanutr_3","epanutr_5","epanutr_8","epanutr_9"),
+#                                labels=c("N. Plains","S. Plains","Western Mtns","Xeric")))%>%
+#   ggplot(aes(x=log10(Tmean8110Cat), y=log10(tp_ugl_median), fill=epanutr_zoneid)) +
+#   geom_point(size=2.5, shape=21)+
+#   scale_fill_manual(values=c("#7f4f24","#b6ad90","#606c38","#dda15e"),
+#                     labels=c("N. Plains","S. Plains","Western Mtns","Xeric"),
+#                     name="EPA zone ID")+
+#   facet_wrap(.~epanutr_zoneid, scales="free")+
+#   theme(legend.position="none")+
+#     ylab("Median TP concentrations (log10 ug/L)")+
+#   xlab("1981-2000 Mean Annual Temperature")
+# 
+# dt1_western_summary%>%
+#   left_join(.,PRISM_1981_2010, by="lagoslakeid")%>%
+#               filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+#                                                    "Headwater")) %>%
+#     mutate(epanutr_zoneid=factor(epanutr_zoneid,
+#                                levels=c("epanutr_3","epanutr_5","epanutr_8","epanutr_9"),
+#                                labels=c("N. Plains","S. Plains","Western Mtns","Xeric")))%>%
+#   ggplot(aes(x=log10(Tmean8110Cat), y=log10(no2no3n_ugl_median), fill=epanutr_zoneid)) +
+#   geom_point(size=2.5, shape=21)+
+#   scale_fill_manual(values=c("#7f4f24","#b6ad90","#606c38","#dda15e"),
+#                     labels=c("N. Plains","S. Plains","Western Mtns","Xeric"),
+#                     name="EPA zone ID")+
+#   facet_wrap(.~epanutr_zoneid, scales="free")+
+#   theme(legend.position="none")+
+#     ylab("Median NO3 concentrations (log10 ug/L)")+
+#   xlab("1981-2000 Mean Annual Temperature")
+```
+
+
+
+<!-- ```{r} -->
+<!-- dt1_western_summary%>% -->
+<!--   left_join(.,NLCD2016, by="lagoslakeid")%>% -->
+<!--   ggplot(aes(x=PctConif2016Cat, y=log10(tp_ugl_median), fill=epanutr_zoneid)) + -->
+<!--   geom_point(size=2.5, shape=21)+ -->
+<!--   geom_smooth(method="lm",se=FALSE)+ -->
+<!--   facet_wrap(.~epanutr_zoneid, scales="free")+ -->
+<!--   theme(legend.position="none") -->
+
+<!-- dt1_western_summary%>% -->
+<!--   left_join(.,NLCD2016, by="lagoslakeid")%>% -->
+<!--   ggplot(aes(x=PctCrop2016Ws, y=log10(tp_ugl_median), fill=epanutr_zoneid)) + -->
+<!--   geom_point(size=2.5, shape=21)+ -->
+<!--   geom_smooth(method="lm",se=FALSE)+ -->
+<!--   facet_wrap(.~epanutr_zoneid, scales="free")+ -->
+<!--   theme(legend.position="none") -->
+
+<!-- ``` -->
+
+## LakeCat variables
+
+### N deposition
+
+Any relationship between NO3 and N deposition in any lakes?
+
+```{r}
+
+names(NADP)
+
+dt1_western_summary%>%
+  ggplot(aes(x=NO3_2008Cat, y=log10(no2no3n_ugl_median),
+             fill=lake_connectivity_class,
+             group=NA)) +
+  geom_point(size=2.5, shape=21)+
+  scale_fill_discrete_diverging()+
+  scale_color_discrete_diverging()+
+  # geom_smooth()+
+  # facet_wrap(.~lake_connectivity_class, scales="free", nrow=3)+
+  theme(legend.position="none")
+
+dt1_western_summary%>%
+  ggplot(aes(x=NO3_2008Cat, y=log10(no2no3n_ugl_median),
+             fill=lake_rsvr_class,
+             group=NA)) +
+  geom_point(size=2.5, shape=21)+
+  scale_fill_discrete_diverging()+
+  scale_color_discrete_diverging()+
+  # geom_smooth()+
+  # facet_wrap(.~lake_connectivity_class, scales="free", nrow=3)+
+  theme(legend.position="none")
+
+dt1_western_summary%>%
+  ggplot(aes(x=NO3_2008Ws, y=lake_elevation_m,
+             # fill=lake_connectivity_class,
+             group=NA)) +
+  geom_point(size=2.5, shape=21)+
+  scale_fill_discrete_diverging()+
+  scale_color_discrete_diverging()+
+  # geom_smooth()+
+  # facet_wrap(.~lake_connectivity_class, scales="free", nrow=3)+
+  theme(legend.position="none")
+
+
+dt1_western_summary%>%
+  ggplot(aes(x=InorgNWetDep_2008Ws, y=lake_elevation_m,
+             # fill=lake_connectivity_class,
+             group=NA)) +
+  geom_point(size=2.5, shape=21)+
+  scale_fill_discrete_diverging()+
+  scale_color_discrete_diverging()+
+  # geom_smooth()+
+  # facet_wrap(.~lake_connectivity_class, scales="free", nrow=3)+
+  theme(legend.position="none")
+
+```
+
+
+# Regular PCA
+Basically uninterpretable.
+
+```{r}
+
+###########
+## Group by hydroScoree
+############
+#Update 2020-07-17 Dropping time-invariant variables for this PCA
+
+#Names of the numeric columns
+numericNames<-dt1_western_summary %>% purrr::discard(~!is.numeric(.)) %>% names
+
+
+
+PCA_data<- dt1_western_summary%>%
+  filter(!is.na(tp_ugl_median)) %>%
+  filter(!is.na(no2no3n_ugl_median)) %>%
+  dplyr::select(lagoslakeid, all_of(numericNames)) %>%
+  dplyr::select(!contains("median"))%>%
+  # dplyr::select(
+  #               # tp_ugl_median, no2no3n_ugl_median,
+  #               ws_area_ha, lake_elevation_m,
+  #               ws_lake_arearatio, lake_lakes1ha_upstream_ha,lake_lakes1ha_upstream_n,
+  #               lake_nets_upstreamlake_n, lake_perimeter_m,
+  #               # lake_nets_upstreamlake_km, #introduces a lot of NAs
+  #               # lake_lakes4ha_upstream_ha, lake_lakes10ha_upstream_ha, #took these out because they overlap completely with 1ha
+  #               # lake_lakes4ha_upstream_n, lake_lakes10ha_upstream_ha, #took these out because they overlap completely with 1ha
+  #               lagoslakeid) %>%
+  # drop_na() %>%
+  # filter(across(everything(),
+  #               ~ !is.na(.))) %>%
+  column_to_rownames(., var = "lagoslakeid")  #convert column name to row name
+
+#Where are the NAs?
+NAcols<-data.frame(PCA_data) %>%
+  select_if(~ any(is.na(.))) %>%
+  names()
+
+PCA_data <- PCA_data %>%
+  dplyr::select(!all_of(NAcols))
+
+res.pca <- PCA(PCA_data, graph = FALSE)
+print(res.pca)
+eig.val <- get_eigenvalue(res.pca)
+#An eigenvalue > 1 indicates that PCs account for more variance than accounted by one of the original variables in standardized data. This is commonly used as a cutoff point for which PCs are retained. This holds true only when the data are standardized.
+
+#Another method for seeing how many PCs is enough
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 70))
+
+# This function provides a list of matrices containing all the results for the active variables (coordinates, correlation between variables and axes, squared cosine and contributions)
+var <- get_pca_var(res.pca)
+var
+
+head(var$coord, 10)
+fviz_pca_var(res.pca, col.var = "black")
+#Interpretation:
+#- Positively correlated variables are grouped together.
+#- Negatively correlated variables are positioned on opposite sides of the plot origin (opposed quadrants).
+#- The distance between variables and the origin measures the quality of the variables on the factor map. Variables that are away from the origin are well represented on the factor map.
+
+
+head(var$contrib, 10)
+
+library("corrplot")
+corrplot(var$cos2, is.corr=FALSE)
+corrplot(var$coord, is.corr=TRUE)
+
+var_trim<-var$coord[,1:2]
+# rownames(var_trim) <- c("DOC", "TP", "Iz", "kD","TN","abs440")
+corrplot(var_trim,
+         mar = c(4,0,4,0), tl.srt=45,
+                  cl.ratio=2, cl.align="l",
+          number.digits = 1,
+         cl.lim=c(-1,1))
+
+#The quality of representation of the variables on factor map is called cos2 (square cosine, squared coordinates) 
+# Color by cos2 values: quality on the factor map
+# Contributions of variables to PC1
+fviz_contrib(res.pca, choice = "var", axes = 1, top = 10)
+# Contributions of variables to PC2
+fviz_contrib(res.pca, choice = "var", axes = 2, top = 10)
+#The red dashed line on the graph above indicates the expected average contribution. If the contribution of the variables were uniform, the expected value would be 1/length(variables) = 1/10 = 10%. For a given component, a variable with a contribution larger than this cutoff could be considered as important in contributing to the component.
+fviz_contrib(res.pca, choice = "var", axes = 3, top = 10)
+fviz_contrib(res.pca, choice = "var", axes = 4, top = 10)
+
+
+
+#Dimension description
+res.desc <- dimdesc(res.pca, axes = c(1,2,3,4), proba = 0.05)
+# Description of dimension 1
+res.desc$Dim.1
+# Description of dimension 2
+res.desc$Dim.2
+# Description of dimension3
+res.desc$Dim.3
+# Description of dimension4
+res.desc$Dim.4
+
+
+##Extract Dim.1 and Dim.2 variables, combine to DF, and look at correlations with predictors
+Dim_1_2<-as.data.frame(res.pca$ind$coord) %>%
+  dplyr::select(Dim.1, Dim.2, Dim.3, Dim.4) %>%
+  tibble::rownames_to_column("lagoslakeid")
+
+dim1_corr<-res.desc$call$X
+
+dim1_2_corr<-left_join(dim1_corr,Dim_1_2, by="Dim.1")
+
+
+colnames<-(intersect( colnames(dt1_western_summary),  colnames(dim1_2_corr))) #identify common columns between data.tables
+PCAdf<-left_join(dim1_2_corr,dt1_western_summary, by=colnames) 
+
+#Do TP and NO3 correlate strongly with PC1 or PC2?
+names(PCAdf)
+# rownames(var_trim) <- c("DOC", "TP", "Iz", "kD","TN","abs440")
+PCAdf_trim<- PCAdf %>%
+  dplyr::select(Dim.1, Dim.2, Dim.3, Dim.4, 
+                tp_ugl_median, no2no3n_ugl_median,
+                lake_rsvr_class,lake_connectivity_class)
+
+#Correlations by NL vs RSVR
+PCAdf_trim%>%
+  mutate(log10tp=log10(tp_ugl_median+0.01))%>%
+  dplyr::select(-tp_ugl_median, -no2no3n_ugl_median)%>%
+  group_by(lake_rsvr_class)%>%
+  cor_test(log10tp)
+
+PCAdf_trim%>%
+  mutate(log10no3n=log10(no2no3n_ugl_median+0.01))%>%
+  dplyr::select(-tp_ugl_median, -no2no3n_ugl_median)%>%
+  group_by(lake_rsvr_class)%>%
+  cor_test(log10no3n)
+
+
+#Correlations by connectivity type
+PCAdf_trim%>%
+  filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+  mutate(log10tp=log10(tp_ugl_median+0.01))%>%
+  dplyr::select(-tp_ugl_median, -no2no3n_ugl_median)%>%
+  group_by(lake_connectivity_class)%>%
+  cor_test(log10tp)
+
+PCAdf_trim%>%
+  filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+  mutate(log10no3n=log10(no2no3n_ugl_median+0.01))%>%
+  dplyr::select(-tp_ugl_median, -no2no3n_ugl_median)%>%
+  group_by(lake_connectivity_class)%>%
+  cor_test(log10no3n)
+
+
+
+
+
+
+########################################
+#Biplot with individual points - color by hydroScore
+########################################
+PCA_data<-PCA_data%>%
+  rename(
+         "WSA:LA"=ws_lake_arearatio,
+         WSA=ws_area_ha,
+         "elevation (m)"=lake_elevation_m,
+         "n upstream lakes"=lake_nets_upstreamlake_n,
+         "perimeter (m)"=lake_perimeter_m,
+         "n lakes >1 ha upstream"=lake_lakes1ha_upstream_n,
+         "total area of >1 ha lakes upstream"=lake_lakes1ha_upstream_ha) #To change labels on PCA run this first
+pca <- PCA(PCA_data, graph = TRUE) #use the full df
+
+
+summer_master_PCA_withhydroScore$hydroscore <- factor(as.character(summer_master_PCA_withhydroScore$hydroScore),
+                                                      levels=c("seepage","drainage","bog"),
+                                                      labels=c("seepage","drainage","bog"))
+PCAdf_annual$hydroscore <- factor(as.character(PCAdf_annual$hydroScore),
+                                                      levels=c("seepage","drainage","bog"),
+                                                      labels=c("seepage","drainage","bog"))
+
+
+fviz_pca_biplot(pca,
+                col.ind = PCAdf_trim$lake_rsvr_class,
+                palette = c("blue","red"),
+                geom.ind = c("none"), # show points only (nbut not "text")
+                addEllipses = FALSE,
+                label = "var",
+                alpha.ind=0.8,
+                alpha.var=0.7,
+                point.size=3,
+                labelsize=5,
+                col.var = "grey50",
+                repel = TRUE,
+                ggtheme = theme_bw(),
+                mean.point=FALSE,
+                # legend.position="none",
+                # legend.title = "Lake type",
+                title="") +
+    scale_shape_manual(values=c(21,22),
+                     labels=c("NL","RSVR"),
+                     name="Lake type")+
+  scale_fill_manual(values=c("navy","red"),
+                     labels=c("NL","RSVR"),
+                     name="Lake type")+
+  geom_point(data=PCAdf_trim,
+             aes(x=Dim.1, y=Dim.2,
+                fill=lake_rsvr_class, shape=lake_rsvr_class),
+                size=5, color="black", alpha=0.5)+
+  guides(fill = guide_legend(override.aes=list(shape=21)))+#So fill color shows up in legend
+  xlab("Nutrient PC1 (41.4%)")+ylab("Nutrient PC2 (16.3%)")+
+  theme(plot.title = element_text(margin = margin(b = 5), size = 13),
+  panel.spacing=grid::unit(0,"lines")) +
+  facet_wrap(~lake_rsvr_class, scales="free")
+
+
+```
+
+
+# Sparse PCA
+```{r}
+install.packages("elasticnet")
+library(elasticnet)
+
+#Names of the numeric columns
+numericNames<-dt1_western_summary %>% purrr::discard(~!is.numeric(.)) %>% names
+
+PCA_data<- dt1_western_summary%>%
+  filter(!is.na(tp_ugl_median)) %>%
+  filter(!is.na(no2no3n_ugl_median)) %>%
+  dplyr::select(lagoslakeid, all_of(numericNames)) %>%
+  dplyr::select(!contains("median"))%>%
+  # dplyr::select(
+  #               # tp_ugl_median, no2no3n_ugl_median,
+  #               ws_area_ha, lake_elevation_m,
+  #               ws_lake_arearatio, lake_lakes1ha_upstream_ha,lake_lakes1ha_upstream_n,
+  #               lake_nets_upstreamlake_n, lake_perimeter_m,
+  #               # lake_nets_upstreamlake_km, #introduces a lot of NAs
+  #               # lake_lakes4ha_upstream_ha, lake_lakes10ha_upstream_ha, #took these out because they overlap completely with 1ha
+  #               # lake_lakes4ha_upstream_n, lake_lakes10ha_upstream_ha, #took these out because they overlap completely with 1ha
+  #               lagoslakeid) %>%
+  # drop_na() %>%
+  # filter(across(everything(),
+  #               ~ !is.na(.))) %>%
+  column_to_rownames(., var = "lagoslakeid")  #convert column name to row name
+
+#Where are the NAs?
+NAcols<-data.frame(PCA_data) %>%
+  select_if(~ any(is.na(.))) %>%
+  names()
+
+PCA_data <- PCA_data %>%
+  dplyr::select(!all_of(NAcols))
+
+sparse.pca.result <- 
+ spca(PCA_data, K = 2, type = "predictor", sparse = "varnum", para = c(20, 20))
+#The second argument, K = 2, specifies that we only want the first two PC’s. 
+#Since we are providing a data matrix and not a correlation/covariance matrix, we set the third argument type = “predictor.” 
+#Finally, the sparse = “varnum” argument specifies that we want to enforce sparsity as the number of non-zero components
+#the last argument (para = c(4, 4)) indicates the number of non-zero components for each of the two PC’s respectively
+#https://crude2refined.wordpress.com/2013/07/30/sparse-pca-example-in-r-part-1/
+
+sparse.pca.result$loadings
+sparse.pca.result$pev
+```
+
+## Outstanding questions
+### (1) Do any of the principal components explain variability in NO3 concentrations?
+We know there are no correlations with TP.
+
+```{r}
+PCAdf_trim %>%
+  filter(lake_connectivity_class %in% c("Drainage","DrainageLk",
+                                                   "Headwater")) %>%
+  pivot_longer(-(5:8)) %>%
+  ggplot(aes(x=value, y=log10(no2no3n_ugl_median), fill=lake_rsvr_class))+
+  geom_point(size=2.5, shape=21)+
+  facet_wrap(lake_rsvr_class~name, scales="free_x")
+```
+
+
+### (2) Why is there a bimodal distribution in the TP concentrations of western mts sites? 
+
+```{r}
+PCAdf_trim %>%
+  ggplot(aes(x=log10(tp_ugl_median), fill=Dim.1))+
+  geom_histogram(binwidth=0.1)
+
+# PCAdf_trim %>%
+#   ggplot(aes(x=lake_rsvr_class, y=log10(tp_ugl_median), fill=Dim.4))+
+#   # geom_boxplot(outlier.shape=NA,alpha=0.7) +
+#   geom_violin(alpha=0.3,trim=FALSE) +
+#   # stat_summary(aes(fill=lake_rsvr_class),fun.y=mean, geom="point", shape=25, size=6, color="black") +
+#   # facet_wrap(~lake_rsvr_class, scales="free_x", ncol=2)+
+#   scale_fill_continuous_diverging()+
+#   scale_color_continuous_diverging()+
+#   geom_jitter( width=0.15, shape=21)+
+#   # stat_summary(fun.data = n_fun, geom = "text") +
+#   # theme(legend.position="none")+
+#   ylab("Median TP concentrations (log10 ug/L)")+
+#   ggtitle("TP")
+# 
+# 
+# PCAdf_trim %>%
+#   ggplot(aes(x=lake_rsvr_class, y=log10(no2no3n_ugl_median), fill=Dim.4))+
+#   # geom_boxplot(outlier.shape=NA,alpha=0.7) +
+#   geom_violin(alpha=0.3,trim=FALSE) +
+#   # stat_summary(aes(fill=lake_rsvr_class),fun.y=mean, geom="point", shape=25, size=6, color="black") +
+#   # facet_wrap(~lake_rsvr_class, scales="free_x", ncol=2)+
+#   scale_fill_continuous_diverging()+
+#   scale_color_continuous_diverging()+
+#   geom_jitter( width=0.15, shape=21)
+
+str(PCAdf_trim$Dim.1)
+```
+
+### (3) What lakes are we losing if we ONLY use sites with BOTH tp and no3?
+
+```{r}
+ggbetweenstats(
+  data = dt1_western_summary %>%
+      drop_na(tp_ugl_median, no2no3n_ugl_median)%>%
+    mutate(log10tp=log10(tp_ugl_median+0.1)),
+  x = lake_rsvr_class,
+  y = lake_elevation_m,
+  outlier.tagging = TRUE, # whether outliers need to be tagged
+  outlier.label = lake_namelagos, # variable to be used for tagging outliers
+  outlier.coef = 2,
+  grouping.var = lake_rsvr_class, # grouping variable
+  pairwise.comparisons = TRUE,
+  pairwise.display = "all",
+  type="nonparametric",
+  ggsignif.args = list(textsize = 4, tip_length = 0.01),
+  p.adjust.method = "bonferroni", # method for adjusting p-values for multiple comparisons
+  # adding new components to `ggstatsplot` default
+  plotgrid.args = list(nrow = 1),
+  title = "Differences in elevation by lake type (only lakes with BOTH TP and NO3 data)",
+)
+
+ggbetweenstats(
+  data = dt1_western_summary %>%
+      drop_na(tp_ugl_median)%>%
+    mutate(log10tp=log10(tp_ugl_median+0.1)),
+  x = lake_rsvr_class,
+  y = lake_elevation_m,
+  outlier.tagging = TRUE, # whether outliers need to be tagged
+  outlier.label = lake_namelagos, # variable to be used for tagging outliers
+  outlier.coef = 2,
+  grouping.var = lake_rsvr_class, # grouping variable
+  pairwise.comparisons = TRUE,
+  pairwise.display = "all",
+  type="nonparametric",
+  ggsignif.args = list(textsize = 4, tip_length = 0.01),
+  p.adjust.method = "bonferroni", # method for adjusting p-values for multiple comparisons
+  # adding new components to `ggstatsplot` default
+  plotgrid.args = list(nrow = 1),
+  title = "Differences in elevation by lake type (all lakes with TP, but some don't have NO3)",
+)
+
+ggbetweenstats(
+  data = dt1_western_summary %>%
+      drop_na(tp_ugl_median)%>%
+    mutate(lake_totalarea_ha=log10(lake_totalarea_ha+0.1)),
+  x = lake_rsvr_class,
+  y = lake_totalarea_ha,
+  outlier.tagging = TRUE, # whether outliers need to be tagged
+  outlier.label = lake_namelagos, # variable to be used for tagging outliers
+  outlier.coef = 2,
+  grouping.var = lake_rsvr_class, # grouping variable
+  pairwise.comparisons = TRUE,
+  pairwise.display = "all",
+  type="nonparametric",
+  ggsignif.args = list(textsize = 4, tip_length = 0.01),
+  p.adjust.method = "bonferroni", # method for adjusting p-values for multiple comparisons
+  # adding new components to `ggstatsplot` default
+  plotgrid.args = list(nrow = 1),
+  title = "Differences in lake area by lake type (all lakes with TP, but some don't have NO3)",
+)
+
+ggbetweenstats(
+  data = dt1_western_summary %>%
+      drop_na(tp_ugl_median, no2no3n_ugl_median)%>%
+    mutate(lake_totalarea_ha=log10(lake_totalarea_ha+0.1)),
+  x = lake_rsvr_class,
+  y = lake_totalarea_ha,
+  outlier.tagging = TRUE, # whether outliers need to be tagged
+  outlier.label = lake_namelagos, # variable to be used for tagging outliers
+  outlier.coef = 2,
+  grouping.var = lake_rsvr_class, # grouping variable
+  pairwise.comparisons = TRUE,
+  pairwise.display = "all",
+  type="nonparametric",
+  ggsignif.args = list(textsize = 4, tip_length = 0.01),
+  p.adjust.method = "bonferroni", # method for adjusting p-values for multiple comparisons
+  # adding new components to `ggstatsplot` default
+  plotgrid.args = list(nrow = 1),
+  title = "Differences in lake area by lake type (only lakes with BOTH TP and NO3 data)",
+)
+
+
+##Summary table
+bind_rows(
+#All lakes with TP, but some missing No3
+dt1_western_summary %>%
+      drop_na(tp_ugl_median) %>%
+  dplyr::select(lake_elevation_m, lake_totalarea_ha,
+                ws_area_ha ) %>%
+  summarize_all(list(median=median, mean=mean)) %>%
+  mutate(dataset="All sites with TP (some NO3 missing)") %>%
+  pivot_longer(-dataset) ,
+#All lakes with NO3, but some missing TP
+dt1_western_summary %>%
+      drop_na(no2no3n_ugl_median) %>%
+  dplyr::select(lake_elevation_m, lake_totalarea_ha,
+                ws_area_ha ) %>%
+  summarize_all(list(median=median, mean=mean)) %>%
+  mutate(dataset="All sites with NO3 (some TP missing)") %>%
+  pivot_longer(-dataset) ,
+#All lakes with TP  AND  No3
+dt1_western_summary %>%
+      drop_na(tp_ugl_median,no2no3n_ugl_median) %>%
+  dplyr::select(lake_elevation_m, lake_totalarea_ha,
+                ws_area_ha ) %>%
+  summarize_all(list(median=median, mean=mean)) %>%
+  mutate(dataset="All sites with TP and NO3 data (no NAs)") %>%
+  pivot_longer(-dataset) 
+) %>%
+  arrange(name) 
+
+
+bind_rows(
+  dt1_western_summary %>%
+      drop_na(tp_ugl_median) %>%
+  dplyr::select(lake_elevation_m, lake_totalarea_ha,
+                ws_area_ha,lake_rsvr_class) %>%
+  group_by(lake_rsvr_class) %>%
+  summarize_all(list(median=median)) %>%
+  mutate(dataset="All sites with TP (some NO3 missing)") %>%
+  pivot_longer(-c(dataset,lake_rsvr_class)) ,
+
+#Summarize characteristics of the sites that get dropped when we drop the sites with missing NO3
+dt1_western_summary %>%
+    filter(is.na(no2no3n_ugl_median)) %>%
+    dplyr::select(lake_elevation_m, lake_totalarea_ha,
+                ws_area_ha,lake_rsvr_class) %>%
+  group_by(lake_rsvr_class) %>%
+  summarize_all(list(median=median)) %>%
+  mutate(dataset="Characteristics of the sites that get dropped") %>%
+  pivot_longer(-c(dataset,lake_rsvr_class))
+) %>%
+  arrange(lake_rsvr_class,name) %>%
+  rename(variable=name)
+```
+
+### (4) Where (geographically) are the missing sites? 
+```{r}
+ggplot()+
+    geom_sf(data = us,color = "black")+
+      geom_polygon(data=states, aes(x=long, y=lat, group=group),
+               fill=NA, color="black",
+               linetype="dashed")+
+    geom_sf(data=rivers50, color="lightblue")+
+    annotation_scale(location = "bl", width_hint = 0.5) +
+    # annotation_north_arrow(location = "bl", which_north = "true", 
+    #     pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+    #     style = north_arrow_fancy_orienteering) +
+    coord_sf(xlim = c(-130, -100), ylim = c(32, 49), expand=TRUE)+
+  geom_point(data=dt1_western_summary %>%
+               filter(is.na(tp_ugl_median)), aes(lake_lon_decdeg, lake_lat_decdeg, fill=epanutr_zoneid, shape=lake_rsvr_class),
+              size=2.5)+
+  scale_fill_manual(values=epaCols,
+                    name="EPA zone ID")+
+    scale_shape_manual(values=c(21,25),
+                       name="Lake type")+
+  ggtitle("All sites missing TP data")+
+  theme_classic()+
+  guides(fill = guide_legend(override.aes=list(shape=21))) #So fill color shows up in legend
+
+dt1_western_summary %>%
+  filter(is.na(tp_ugl_median)) %>%
+  group_by(epanutr_zoneid,lake_rsvr_class) %>%
+  summarize(n_lakes=length(unique(lagoslakeid))) %>%
+  ggplot(aes(x=epanutr_zoneid, y=n_lakes, fill=epanutr_zoneid))+
+  geom_bar(stat="identity", color="black", width=.5, position = "dodge")+
+  scale_fill_manual(values=epaCols,
+                    name="EPA zone ID")+
+  facet_wrap(~lake_rsvr_class)+
+  ggtitle("Sites where TP data are missing")+
+  theme(legend.position="none")+
+  xlab("EPA nutrient zone ID")+
+  ylab("Number of sites")
+
+
+ggplot()+
+    geom_sf(data = us,color = "black")+
+      geom_polygon(data=states, aes(x=long, y=lat, group=group),
+               fill=NA, color="black",
+               linetype="dashed")+
+    # geom_sf(data=rivers50, color="lightblue")+  
+    annotation_scale(location = "bl", width_hint = 0.5) +
+    # annotation_north_arrow(location = "bl", which_north = "true", 
+    #     pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+    #     style = north_arrow_fancy_orienteering) +
+    coord_sf(xlim = c(-130, -100), ylim = c(32, 49), expand=TRUE)+
+  geom_point(data=dt1_western_summary %>%
+               filter(is.na(no2no3n_ugl_median)), aes(lake_lon_decdeg, lake_lat_decdeg, fill=epanutr_zoneid, shape=lake_rsvr_class),
+              size=2.5)+
+  scale_fill_manual(values=c("#7f4f24","#b6ad90","#606c38","#dda15e"),
+                    labels=c("N. Plains","S. Plains","Western Mtns","Xeric"),
+                    name="EPA zone ID")+
+    scale_shape_manual(values=c(21,25),
+                       name="Lake type")+
+  ggtitle("All sites missing NO3 data")+
+  theme_classic()+
+    guides(fill = guide_legend(override.aes=list(shape=21))) #So fill color shows up in legend
+
+dt1_western_summary %>%
+  filter(is.na(no2no3n_ugl_median)) %>%
+  group_by(epanutr_zoneid,lake_rsvr_class) %>%
+  summarize(n_lakes=length(unique(lagoslakeid))) %>%
+  ggplot(aes(x=epanutr_zoneid, y=n_lakes, fill=epanutr_zoneid))+
+  geom_bar(stat="identity", color="black", width=.5, position = "dodge")+
+  scale_fill_manual(values=epaCols,
+                    name="EPA zone ID")+
+  facet_wrap(~lake_rsvr_class)+
+  ggtitle("Sites where NO3 data are missing")+
+  theme(legend.position="none")+
+  xlab("EPA nutrient zone ID")+
+  ylab("Number of sites")
+
+dt1_western_summary %>%
+  drop_na(tp_ugl_median, no2no3n_ugl_median) %>%
+  group_by(epanutr_zoneid,lake_rsvr_class) %>%
+  summarize(n_lakes=length(unique(lagoslakeid))) %>%
+  ggplot(aes(x=epanutr_zoneid, y=n_lakes, fill=epanutr_zoneid))+
+  geom_bar(stat="identity", color="black", width=.5, position = "dodge")+
+  scale_fill_manual(values=epaCols,
+                    name="EPA zone ID")+
+  facet_wrap(~lake_rsvr_class)+
+  ggtitle("Final counts with all complete lakes (no missing data)")+
+  theme(legend.position="none")+
+  xlab("EPA nutrient zone ID")+
+  ylab("Number of sites")
+
+```
