@@ -333,6 +333,14 @@ summary(as.factor(lakecharacteristics$lake_connectivity_fluctuates))
 summary(as.factor(lakecharacteristics$lake_connectivity_permanent)) 
 summary(as.factor(lakecharacteristics$lake_glaciatedlatewisc)) 
 
+lakecharacteristics <- lakecharacteristics %>%
+  dplyr::select(lagoslakeid, lake_perimeter_m, lake_totalarea_ha,
+                lake_connectivity_class, lake_connectivity_fluctuates, lake_connectivity_permanent,
+                lake_lakes4ha_upstream_ha, lake_lakes4ha_upstream_n, lake_lakes1ha_upstream_ha,
+                lake_lakes1ha_upstream_n, lake_lakes10ha_upstream_n, lake_lakes10ha_upstream_ha, 
+                lake_glaciatedlatewisc)
+
+
 
 infile3 <- trimws("https://pasta.lternet.edu/package/data/eml/edi/854/1/8bd86b94234a21a74991eca7bd9ab883") 
 infile3 <-sub("^https","http",infile3)
@@ -1158,7 +1166,135 @@ NLCD<-semi_join(NLCD,dt1_western,by="nhdplusv2_comid")# All rows in a that have 
 colnames<-(intersect( colnames(dt1_western), colnames(NLCD)))
 dt1_western<- left_join(dt1_western,NLCD,by=colnames) 
 
+## MTBS
 
+MTBS <-read.csv(here("data/lakecat/MTBS.csv")) %>%
+  rename(nhdplusv2_comid=COMID)%>%
+  mutate(nhdplusv2_comid=as.character(nhdplusv2_comid))
+colnames<-(intersect( colnames(dt1_western), colnames(MTBS)))
+dt1_western<- left_join(dt1_western,MTBS,by=colnames) 
+
+
+## BFI = base flow index
+BFI <-read.csv(here("data/lakecat/BFI.csv")) %>%
+  rename(nhdplusv2_comid=COMID)%>%
+  mutate(nhdplusv2_comid=as.character(nhdplusv2_comid))
+colnames<-(intersect( colnames(dt1_western), colnames(BFI)))
+dt1_western<- left_join(dt1_western,BFI,by=colnames) 
+
+## Fire Perimeters
+FirePerim <-read.csv(here("data/lakecat/FirePerimeters.csv")) %>%
+  rename(nhdplusv2_comid=COMID)%>%
+  mutate(nhdplusv2_comid=as.character(nhdplusv2_comid))
+colnames<-(intersect( colnames(dt1_western), colnames(FirePerim)))
+dt1_western<- left_join(dt1_western,FirePerim,by=colnames) 
+
+## Forest Loss
+ForestLoss <-read.csv(here("data/lakecat/ForestLossByYear0013.csv")) %>%
+  rename(nhdplusv2_comid=COMID)%>%
+  mutate(nhdplusv2_comid=as.character(nhdplusv2_comid))
+colnames<-(intersect( colnames(dt1_western), colnames(ForestLoss)))
+dt1_western<- left_join(dt1_western,ForestLoss,by=colnames) 
+
+## GeoChemPhys
+GeoChemPhys1 <-read.csv(here("data/lakecat/GeoChemPhys1.csv")) %>%
+  rename(nhdplusv2_comid=COMID)%>%
+  mutate(nhdplusv2_comid=as.character(nhdplusv2_comid))
+GeoChemPhys2 <-read.csv(here("data/lakecat/GeoChemPhys2.csv")) %>%
+  rename(nhdplusv2_comid=COMID)%>%
+  mutate(nhdplusv2_comid=as.character(nhdplusv2_comid))
+GeoChemPhys3 <-read.csv(here("data/lakecat/GeoChemPhys3.csv")) %>%
+  rename(nhdplusv2_comid=COMID)%>%
+  mutate(nhdplusv2_comid=as.character(nhdplusv2_comid))
+GeoChemPhys4 <-read.csv(here("data/lakecat/GeoChemPhys4.csv")) %>%
+  rename(nhdplusv2_comid=COMID)%>%
+  mutate(nhdplusv2_comid=as.character(nhdplusv2_comid))
+
+colnames<-(intersect( colnames(GeoChemPhys1),  colnames(GeoChemPhys2))) #identify common columns between data.tables
+GeoChemPhys<-left_join(GeoChemPhys1,GeoChemPhys2, by=colnames)
+GeoChemPhys<-left_join(GeoChemPhys,GeoChemPhys3, by=colnames)
+GeoChemPhys<-left_join(GeoChemPhys,GeoChemPhys4, by=colnames)
+
+colnames<-(intersect( colnames(dt1_western), colnames(GeoChemPhys)))
+dt1_western<- left_join(dt1_western,GeoChemPhys,by=colnames) 
+
+## Impervious Surfaces
+ImpSurf <-read.csv(here("data/lakecat/ImperviousSurfaces2016.csv")) %>%
+  rename(nhdplusv2_comid=COMID)%>%
+  mutate(nhdplusv2_comid=as.character(nhdplusv2_comid))
+colnames<-(intersect( colnames(dt1_western), colnames(ImpSurf)))
+dt1_western<- left_join(dt1_western,ImpSurf,by=colnames) 
+
+
+## Lithology
+Lithology <-read.csv(here("data/lakecat/Lithology.csv")) %>%
+  rename(nhdplusv2_comid=COMID)%>%
+  mutate(nhdplusv2_comid=as.character(nhdplusv2_comid))
+colnames<-(intersect( colnames(dt1_western), colnames(Lithology)))
+dt1_western<- left_join(dt1_western,Lithology,by=colnames) 
+
+## PRISM
+PRISM <-read.csv(here("data/lakecat/PRISM_1981_2010.csv")) %>%
+  rename(nhdplusv2_comid=COMID)%>%
+  mutate(nhdplusv2_comid=as.character(nhdplusv2_comid))
+colnames<-(intersect( colnames(dt1_western), colnames(PRISM)))
+dt1_western<- left_join(dt1_western,PRISM,by=colnames) 
+
+## Runoff
+Runoff <-read.csv(here("data/lakecat/Runoff.csv")) %>%
+  rename(nhdplusv2_comid=COMID)%>%
+  mutate(nhdplusv2_comid=as.character(nhdplusv2_comid))
+colnames<-(intersect( colnames(dt1_western), colnames(Runoff)))
+dt1_western<- left_join(dt1_western,Runoff,by=colnames) 
+
+## Slope
+Slope <-read.csv(here("data/lakecat/Slope.csv")) %>%
+  rename(nhdplusv2_comid=COMID)%>%
+  mutate(nhdplusv2_comid=as.character(nhdplusv2_comid))
+colnames<-(intersect( colnames(dt1_western), colnames(Slope)))
+dt1_western<- left_join(dt1_western,Slope,by=colnames) 
+
+## Census
+Census <-read.csv(here("data/lakecat/USCensus2010.csv")) %>%
+  rename(nhdplusv2_comid=COMID)%>%
+  mutate(nhdplusv2_comid=as.character(nhdplusv2_comid))
+colnames<-(intersect( colnames(dt1_western), colnames(Census)))
+dt1_western<- left_join(dt1_western,Census,by=colnames) 
+
+## WetIndx
+WetIndx <-read.csv(here("data/lakecat/WetIndx.csv")) %>%
+  rename(nhdplusv2_comid=COMID)%>%
+  mutate(nhdplusv2_comid=as.character(nhdplusv2_comid))
+colnames<-(intersect( colnames(dt1_western), colnames(WetIndx)))
+dt1_western<- left_join(dt1_western,WetIndx,by=colnames) 
+
+## AgN
+AgN <-read.csv(here("data/lakecat/AgriculturalNitrogen.csv")) %>%
+  rename(nhdplusv2_comid=COMID)%>%
+  mutate(nhdplusv2_comid=as.character(nhdplusv2_comid))
+colnames<-(intersect( colnames(dt1_western), colnames(AgN)))
+dt1_western<- left_join(dt1_western,AgN,by=colnames) 
+
+
+#Bring it all together in lakeCat dataframe
+colnames<-(intersect( colnames(NADP),  colnames(NLCD))) #identify common columns between data.tables
+lakeCat<- left_join(NADP, NLCD, by=colnames)
+lakeCat<- left_join(lakeCat, BFI, by=colnames)
+lakeCat<- left_join(lakeCat, FirePerim, by=colnames)
+lakeCat<- left_join(lakeCat, MTBS, by=colnames)
+lakeCat<- left_join(lakeCat, ForestLoss, by=colnames)
+lakeCat<- left_join(lakeCat, PRISM, by=colnames)
+lakeCat<- left_join(lakeCat, Runoff, by=colnames)
+lakeCat<- left_join(lakeCat, Slope, by=colnames)
+lakeCat<- left_join(lakeCat, Lithology, by=colnames)
+lakeCat<- left_join(lakeCat, ImpSurf, by=colnames)
+lakeCat<- left_join(lakeCat, GeoChemPhys, by=colnames)
+lakeCat<- left_join(lakeCat, WetIndx, by=colnames)
+lakeCat<- left_join(lakeCat, Census, by=colnames)
+lakeCat<- left_join(lakeCat, AgN, by=colnames)
+names(lakeCat)
+
+write_csv(dt1_western, "data/export/dt1_western.csv")
 
 
 # summarize spatial DF ----------------------------------------------------
@@ -1188,29 +1324,32 @@ dt1_western_summary <- dt1_western_summary %>%
 
 
 #We lost some variables in the summary, so adding them back in here
+# colnames<-(intersect( colnames(dt1_western_summary),  colnames(lakewatersheds))) #identify common columns between data.tables
+# dt1_western_summary<-merge(dt1_western_summary,lakewatersheds,  no.dups=TRUE, by=colnames)
+# colnames<-(intersect( colnames(dt1_western_summary),  colnames(dt1))) #identify common columns between data.tables
+# dt1_western_summary<-merge(dt1_western_summary,dt1,  no.dups=TRUE, by=colnames)
+# colnames<-(intersect( colnames(dt1_western_summary),  colnames(depth))) #identify common columns between data.tables
+# dt1_western_summary<-merge(dt1_western_summary,depth,  no.dups=TRUE, by=colnames)
+# colnames<-(intersect( colnames(dt1_western_summary),  colnames(reservoir))) #identify common columns between data.tables
+# dt1_western_summary<-merge(dt1_western_summary,reservoir,  no.dups=TRUE, by=colnames)
+# colnames<-(intersect( colnames(dt1_western_summary),  colnames(NADP))) #identify common columns between data.tables
+# dt1_western_summary<-merge(dt1_western_summary,NADP,  no.dups=TRUE, by=colnames)
+# colnames<-(intersect( colnames(dt1_western_summary),  colnames(NLCD))) #identify common columns between data.tables
+# dt1_western_summary<-merge(dt1_western_summary,NLCD,  no.dups=TRUE, by=colnames)
+
+#Using merge, we end up losing a lot of observations starting with "reservoir"
 colnames<-(intersect( colnames(dt1_western_summary),  colnames(lakewatersheds))) #identify common columns between data.tables
-dt1_western_summary<-merge(dt1_western_summary,lakewatersheds,  no.dups=TRUE, by=colnames)
+dt1_western_summary<-left_join(dt1_western_summary,lakewatersheds, by=colnames)
 colnames<-(intersect( colnames(dt1_western_summary),  colnames(dt1))) #identify common columns between data.tables
-dt1_western_summary<-merge(dt1_western_summary,dt1,  no.dups=TRUE, by=colnames)
+dt1_western_summary<-left_join(dt1_western_summary,dt1,   by=colnames)
 colnames<-(intersect( colnames(dt1_western_summary),  colnames(depth))) #identify common columns between data.tables
-dt1_western_summary<-merge(dt1_western_summary,depth,  no.dups=TRUE, by=colnames)
+dt1_western_summary<-left_join(dt1_western_summary,depth, by=colnames)
 colnames<-(intersect( colnames(dt1_western_summary),  colnames(reservoir))) #identify common columns between data.tables
-dt1_western_summary<-merge(dt1_western_summary,reservoir,  no.dups=TRUE, by=colnames)
-colnames<-(intersect( colnames(dt1_western_summary),  colnames(NADP))) #identify common columns between data.tables
-dt1_western_summary<-merge(dt1_western_summary,NADP,  no.dups=TRUE, by=colnames)
-colnames<-(intersect( colnames(dt1_western_summary),  colnames(NLCD))) #identify common columns between data.tables
-dt1_western_summary<-merge(dt1_western_summary,NLCD,  no.dups=TRUE, by=colnames)
-
-
-
-
-lakecharacteristics_trim <- lakecharacteristics %>%
-  dplyr::select(lagoslakeid, lake_perimeter_m, lake_totalarea_ha,
-                lake_connectivity_class, lake_connectivity_fluctuates, lake_connectivity_permanent,
-                lake_lakes4ha_upstream_ha, lake_lakes4ha_upstream_n, lake_lakes1ha_upstream_ha,
-                lake_lakes1ha_upstream_n, lake_lakes10ha_upstream_n, lake_lakes10ha_upstream_ha, 
-                lake_glaciatedlatewisc)
-dt1_western_summary<-merge(dt1_western_summary,lakecharacteristics_trim,  no.dups=TRUE, by="lagoslakeid")
+dt1_western_summary<-left_join(dt1_western_summary,reservoir, by=colnames)
+colnames<-(intersect( colnames(dt1_western_summary),  colnames(lakeCat))) #identify common columns between data.tables
+dt1_western_summary<-left_join(dt1_western_summary,lakeCat, by=colnames)
+colnames<-(intersect( colnames(dt1_western_summary),  colnames(lakecharacteristics))) #identify common columns between data.tables
+dt1_western_summary<-left_join(dt1_western_summary,lakecharacteristics,  by=colnames)
 
 
 #double checks
@@ -1218,13 +1357,15 @@ dt1_western_summary$year
 
 
 #IAO Sept 28 2021 -- since we are going to focus on TP and NO3, filter out NAs now
-dt1_western_summary<-dt1_western_summary%>%
-  filter(!(is.na(tp_ugl_median) &
-           is.na(no2no3n_ugl_median))) 
-
-dt1_western_summary_test<-dt1_western_summary %>%
-  filter(!is.na(tp_ugl_median)) %>%
-  filter(!is.na(no2no3n_ugl_median))
+# dt1_western_summary<-dt1_western_summary%>%
+#   filter(!(is.na(tp_ugl_median) &
+#            is.na(no2no3n_ugl_median))) 
+# 
+# dt1_western_summary_TP <- dt1_western_summary %>%
+#   filter(!is.na(tp_ugl_median)) 
+# 
+# dt1_western_summary_NO3 <- dt1_western_summary %>%
+#   filter(!is.na(no2no3n_ugl_median)) 
 
 
 ## Add levels and labels for EPA zones 
@@ -1234,29 +1375,6 @@ dt1_western_summary<- dt1_western_summary %>%
                                                    "epanutr_8","epanutr_9"),
                                  labels=c("N. Plains","S. Plains","Western Mtns","Xeric"))) 
               
-#Add LakeCat variables eventually, but not yet
-
-# colnames<-(intersect( colnames(dt1_western_summary),  colnames(LakeCat))) #identify common columns between data.tables
-# dt1_western_summary<-left_join(dt1_western_summary,LakeCat_trim,by=colnames)# All rows in a that have a match in b
-
-#PRISM
-PRISM_1981_2010<-read.csv(here("~/Dropbox/dropbox Research/Modelscape/modelscape/data/lakecat/PRISM_1981_2010.csv")) %>%
-  rename(nhdplusv2_comid=COMID)%>%
-  mutate(nhdplusv2_comid=as.character(nhdplusv2_comid))
-PRISM_1981_2010<-left_join(PRISM_1981_2010,dt4,by="nhdplusv2_comid") %>%# All rows in a that have a match in b
-  drop_na(lagoslakeid) %>%
-  mutate(lagoslakeid=factor(lagoslakeid))
-# str(PRISM_1981_2010$lagoslakeid)
-
-
-NLCD2016 <-read.csv(here("~/Dropbox/dropbox Research/Modelscape/modelscape/data/lakecat/NLCD2016.csv")) %>%
-  rename(nhdplusv2_comid=COMID)%>%
-  mutate(nhdplusv2_comid=as.character(nhdplusv2_comid))
-NLCD2016<-left_join(NLCD2016,dt4,by="nhdplusv2_comid") %>%# All rows in a that have a match in b
-  drop_na(lagoslakeid) %>%
-  mutate(lagoslakeid=factor(lagoslakeid))
-
-
 
 
 # summarize spatial df (2010-present) -------------------------------------
