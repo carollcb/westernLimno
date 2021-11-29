@@ -1,0 +1,401 @@
+---
+title: "Sparse models on western US LAGOS data"
+author: "Bella Oleksy"
+date: "Last compiled on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  bookdown::pdf_document2:
+    latex_engine: pdflatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_knit$set(root.dir='..')
+knitr::opts_chunk$set(out.width = '100%',fig.height=5,
+                      echo=FALSE, 
+               warning=FALSE, message=FALSE) 
+
+```
+
+```{r Load necessary packages, echo=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+
+
+
+library(here)
+# install.packages(c("cowplot", "googleway", "ggplot2", "ggrepel", 
+# "ggspatial", "libwgeom", "sf", "rnaturalearth", "rnaturalearthdata"))
+if (!require('ggplot2')) install.packages('ggplot2'); library('ggplot2')
+if (!require('colorspace')) install.packages('colorspace'); library('colorspace')#Borrowed some code from their minimum working example: 
+
+library(tidyverse)
+library(lubridate)
+if (!require('patchwork')) install.packages('patchwork'); library('patchwork')
+if (!require('kableExtra')) install.packages('kableExtra'); library('kableExtra')
+library(data.table) #for faster data summaries than dplyr
+if (!require('ggstatsplot')) install.packages('ggstatsplot'); library('ggstatsplot')
+if (!require('ggthemes')) install.packages('ggthemes'); library('ggthemes')
+theme_set(ggthemes::theme_base())
+
+library(GGally)
+
+if (!require('glmnet')) install.packages('glmnet'); library('glmnet')#For LASSO: https://www.statology.org/lasso-regression-in-r/
+if (!require('susieR')) install.packages('susieR'); library('susieR')#Borrowed some code from their minimum working example: #https://stephenslab.github.io/susieR/articles/mwe.html
+
+
+#packages for extreme gradient boosting
+if (!require('xgboost')) install.packages('xgboost'); library('xgboost')
+if (!require('caret')) install.packages('caret'); library('caret')
+if (!require('DiagrammeR')) install.packages('DiagrammeR'); library('DiagrammeR')
+
+
+#For summary
+if (!require('huxtable')) install.packages('huxtable'); library('huxtable')
+if (!require('officer')) install.packages('officer'); library('officer')
+if (!require('flextable')) install.packages('flextable'); library('flextable')
+
+#Mapping
+
+library("sf")
+library("rnaturalearth")
+library("rnaturalearthdata")
+library("ggspatial")
+library(raster)
+library(tidytext)
+if (!require('nhdplusTools')) install.packages('nhdplusTools'); library('nhdplusTools')
+if (!require('maps')) install.packages('maps'); library('maps')
+
+if (!require('ggfortify')) install.packages('ggfortify'); library('ggfortify')
+if (!require('cluster')) install.packages('cluster'); library('cluster')
+if (!require('FactoMineR')) install.packages('FactoMineR'); library('FactoMineR')
+if (!require('factoextra')) install.packages('factoextra'); library('factoextra')
+
+#For sen slopes
+library(trend)
+library(zyp)
+
+#Wilcox tests
+
+if (!require('coin')) install.packages('coin'); library('coin')
+
+#XG Boost
+if (!require('xgboost')) install.packages('xgboost'); library('xgboost')
+if (!require('caret')) install.packages('caret'); library('caret')
+if (!require('DiagrammeR')) install.packages('DiagrammeR'); library('DiagrammeR')
+
+# devtools::install_github("crsh/papaja")
+library(papaja)
+```
+
+```{r Source raw data, echo=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+source("~/Dropbox/dropbox Research/Modelscape/modelscape/000_compile_data.R")
+```
+
+#Create datasets for sparse modeling
+
+All the methods we are working with require there to be no missing data.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+#Create a dataframe without NAs for the sparse modeling
+
+#Names of the numeric columns
+numericNames<-dt1_western_summary %>% purrr::discard(~!is.numeric(.)) %>% names
+
+
+
+dt1_western_sparse<- dt1_western_summary%>%
+  dplyr::select(lagoslakeid, all_of(numericNames)) %>%
+  # dplyr::select(!contains("median"))%>%
+  # dplyr::select(tp_ugl_median,no2no3n_ugl_median)
+  # dplyr::select(
+  #               # tp_ugl_median, no2no3n_ugl_median,
+  #               ws_area_ha, lake_elevation_m,
+  #               ws_lake_arearatio, lake_lakes1ha_upstream_ha,lake_lakes1ha_upstream_n,
+  #               lake_nets_upstreamlake_n, lake_perimeter_m,
+  #               # lake_nets_upstreamlake_km, #introduces a lot of NAs
+  #               # lake_lakes4ha_upstream_ha, lake_lakes10ha_upstream_ha, #took these out because they overlap completely with 1ha
+  #               # lake_lakes4ha_upstream_n, lake_lakes10ha_upstream_ha, #took these out because they overlap completely with 1ha
+  #               lagoslakeid) %>%
+  # drop_na() %>%
+  # filter(across(everything(),
+  #               ~ !is.na(.))) %>%
+  column_to_rownames(., var = "lagoslakeid")  #convert column name to row name
+
+#Where are the NAs?
+NAcols<-data.frame(dt1_western_sparse) %>%
+  select_if(~ any(is.na(.))) %>%
+  names()
+
+dt1_western_sparse_TP <- dt1_western_sparse %>%
+  dplyr::select(!all_of(NAcols)) %>%
+  rownames_to_column() %>%
+  rename(lagoslakeid=rowname)%>%
+  left_join(., dt1_western_summary %>%
+              dplyr::select(lagoslakeid,tp_ugl_median), by="lagoslakeid") %>%
+    filter(!(is.na(tp_ugl_median))) %>%
+   column_to_rownames(., var = "lagoslakeid") %>%
+  relocate(tp_ugl_median) #rearranging columns so tp is in the first position
+
+dt1_western_sparse_NO3 <- dt1_western_sparse %>%
+  dplyr::select(!all_of(NAcols)) %>%
+  rownames_to_column() %>%
+  rename(lagoslakeid=rowname)%>%
+  left_join(., dt1_western_summary %>%
+              dplyr::select(lagoslakeid,no2no3n_ugl_median), by="lagoslakeid") %>%
+    filter(!(is.na(no2no3n_ugl_median))) %>%
+   column_to_rownames(., var = "lagoslakeid") %>%
+  relocate(no2no3n_ugl_median)
+```
+
+
+## Compete different methods
+### Susie
+
+#### Total P
+
+
+```{r echo=FALSE, tidy=TRUE, out.width = '75%',fig.height=4}
+set.seed(8948)
+#define response variable
+#I'm assuming it's a good idea to log transform the response variable, as in normal linear regression?
+y <- data.matrix(log10(dt1_western_sparse_TP$tp_ugl_median+0.01))
+
+#define predictor/parameter matrix
+x <- data.matrix(dt1_western_sparse_TP[, -c(1)])
+#exclude water chemistry parameters, because otherwise the model just picks TP
+
+res_tp <- susie(x,y,L=10, max_iter = 1000) #Note: same answer if you include the stuff below. 
+               #    estimate_residual_variance=TRUE, 
+               # scaled_prior_variance=0.2,
+               # tol=1e-3, track_fit=TRUE, min_abs_corr=0.1)
+
+#Plot of effect size estimates
+# pdf('plots/susie_effsize_tp.pdf', width =9, height = 6, pointsize=16)
+bhat = coef(res_tp)[-1]
+susieR::susie_plot(bhat, y='bhat', 
+                   main = 'SuSiE, effect size estimate',
+                   ylab = "TP - bhat") 
+# dev.off()
+
+#produces a per-variable summary of the SuSiE credible sets. 
+# pdf('plots/susie_tp.pdf', width =9, height = 6, pointsize=16)
+susieR::susie_plot(res_tp, y='PIP',
+                   max_cs=0.4, main = paste('Bayesian sparse regression (SuSiE), ', length(res_tp$sets$cs), 'credible sets identified'),
+                   add_legend = "topright",
+                   add_bar=TRUE,
+                   pointsize=16,
+                   ylab = "PIP for TP") 
+# dev.off()
+
+#The posterior inclusion probability is a ranking measure to see how much the data favors the inclusion of a variable in the regression.
+#Could also plot PIP on a log10 scale by setting y='log10PIP'
+
+
+
+susie_predictors<-res_tp$sets$cs #To pull out the top sparse effects.
+#Which columns come up in the 1st credible set?
+colnames(x)[43]
+colnames(x)[75]
+colnames(x)[107]
+colnames(x)[139]
+colnames(x)[171]
+colnames(x)[1]
+
+susie_predictors2<-susie_get_cs(res_tp) #another way to do this that includes "coverage". Here you get more credible sets. 
+
+susie_predictors<-as.numeric(sapply(susie_predictors,'[[',1))#Extract only the 1st value of each
+
+susie_predictors2<-as.numeric(sapply(susie_predictors2$cs,'[[',1))#Extract only the 1st value of each
+
+
+susie_predictors_tp<-dt1_western_sparse_TP %>%
+  dplyr::select(-(1))%>%
+  dplyr::select(all_of(susie_predictors2))%>%
+  names()
+susie_predictors_tp
+
+lm.result<-lm(y ~ x[,43] + x[,1] )
+
+#################################################
+#### START HERE WHEN YOU RETURN - IAO 2021-NOV-08
+#################################################
+
+summary(lm.result)
+plot(predict(lm.result), predict(res_tp)) # comparison of predictions
+abline(coef = c(0,1))
+#Similar but not identical results
+
+# data.frame(susie.est=coef(res_tp)[c(1,3,34,347,224,170)], # comparison of estimates tp when L=5
+#            lm.est=coefficients(lm.result)) # first coefficient is intercept
+data.frame(susie.est=coef(res_tp)[c(1,8,5,647,39,615,467,349,245,340,173)], # comparison of estimates tp when L=10
+           lm.est=coefficients(lm.result)) # first coefficient is intercept
+#In the examples I saw with simulated data, these should be the same but they aren't.
+
+##Commenting out a whole bunch of useful helper functions
+##See https://stephenslab.github.io/susieR/reference/susie_get_methods.html for details
+post_pip<-susie_get_pip(res_tp, prune_by_cs = FALSE, prior_tol = 1e-09)
+#returns a vector containing the posterior inclusion probabilities (PIPs) for all variables.
+post_mean<-susie_get_posterior_mean(res_tp, prior_tol = 1e-09)
+#returns the posterior mean for the regression coefficients of the fitted susie model.
+post_sd<-susie_get_posterior_sd(res_tp, prior_tol = 1e-09)
+#returns the posterior standard deviation for coefficients of the fitted susie model.
+post_tp<-data.frame(post_mean,post_sd,post_pip)
+#dataframe of useful info
+
+#find SST and SSE
+y_predicted<-predict(res_tp)
+sst <- sum((y - mean(y))^2)
+sse <- sum((y_predicted - y)^2)
+
+#find R-Squared
+rsq_susie_tp <- 1 - sse/sst
+rsq_susie_tp
+
+
+#Plot the ground-truth outcomes vs. the predicted outcomes:
+# plot(y,predict(res_tp),pch = 20)
+# abline(coef = c(0,1))
+# title(main="SuSiE chl predictions")
+
+#Plot with ggplot
+tp_predicted<-data.frame(predict(res_tp))
+tp_observed<-data.frame(y)
+tp_plot<-bind_cols(tp_predicted,
+          tp_observed)
+colnames(tp_plot)[1:2] <- c("pred", "obs")
+tp_plot %>%
+  ggplot(aes(y=pred, x=obs))+
+  geom_point()+
+  xlab("Observed chl a (log-transformed)")+
+  ylab("SuSiE predicted chl a (log-transformed)")+
+  geom_smooth(method="lm",se=FALSE,color="navy")+
+  theme_bw()+
+  geom_abline(intercept = 0, slope=1)+
+  annotate("text", x = -1.4, y = 1.5,
+  label = "paste(bold(R) ^ 2, \" = .36\")",
+  parse = TRUE,
+  color="navy")+
+  ggtitle("SuSiE results")
+
+
+```
+
+
+
+### Lasso
+Some code borrowed from [link] (https://www.statology.org/lasso-regression-in-r/)
+
+#### Total P
+```{r echo=FALSE, tidy=TRUE, out.width = '75%',fig.height=4}
+
+#Response variable
+y <- data.matrix(log10(dt1_western_sparse_TP$tp_ugl_median+0.01))
+
+#define predictor/parameter matrix
+x <- data.matrix(dt1_western_sparse_TP[, -c(1)])
+
+#Next, we’ll use the glmnet() function to fit the lasso regression model and specify alpha=1.
+
+#Note that setting alpha equal to 0 is equivalent to using ridge regression and setting alpha to some value between 0 and 1 is equivalent to using an elastic net. 
+
+#To determine what value to use for lambda, we’ll perform k-fold cross-validation and identify the lambda value that produces the lowest test mean squared error (MSE).
+
+#Note that the function cv.glmnet() automatically performs k-fold cross validation using k = 10 folds.
+
+#perform k-fold cross-validation to find optimal lambda value
+cv_model <- glmnet::cv.glmnet(x, y, alpha = 1, family="gaussian")
+cv_model
+
+#find optimal lambda value that minimizes the MSE
+best_lambda <- cv_model$lambda.min
+best_lambda #lambda.min is the value of 𝜆 that gives minimum mean cross-validated error
+lambda_1se <- cv_model$lambda.1se
+#In the summary table at the end of the document I am going to store the predictors from the model using 1se lambda because it is more parsimonious (in this case, 21 non-zero predictors)
+
+
+#produce plot of test MSE by lambda value
+plot(cv_model) 
+
+
+
+#find coefficients of best model
+best_model1 <- glmnet::glmnet(x, y, alpha = 1, lambda = best_lambda, standardize = TRUE)
+best_model2 <- glmnet::glmnet(x, y, alpha = 1, lambda = lambda_1se, standardize = TRUE)
+lasso_coef_tp_1<-coef(best_model1,  cv_model$lambda.min) #Using lambda.min as the best lambda, gives the following regression coefficients
+lasso_coef_tp_2<-coef(best_model2,  cv_model$lambda.1se) #Using lambda.1se reduces the complexity of the model
+
+
+print(best_model1) #less parsimonious (Df=26) but higher %Dev (15.46%)
+print(best_model2) #more parsimonious (Df=5) but smaller %Dev (4.54%)
+#DF is the number of non-zero coefficients
+#%Dev is percent deviance explained, same as R2 below. 
+
+#Convert sparse matrix to dataframe
+lasso_coef_tp_1<-as.data.frame(summary(lasso_coef_tp_1)) %>%
+  arrange(desc(x)) %>%#Arranging from highest to lowest coefficient
+  filter(i>1) %>%#exclude intercept
+  mutate(i=i-1) #Need to account for offset of intercept
+
+lasso_coef_tp_2<-as.data.frame(summary(lasso_coef_tp_2)) %>%
+  arrange(desc(x)) %>% #Arranging from highest to lowest coefficient
+  filter(i>1) %>%#exclude intercept
+  mutate(i=i-1) #Need to account for offset of intercept
+
+
+head(lasso_coef_tp_1)
+head(lasso_coef_tp_2)
+
+#The model narrows down the set of predictors to about 35. but the top 10 are:
+
+lasso_coef_tp_1[1:10,]
+lasso_predictors_tp<-as.numeric(lasso_coef_tp_1[1:10,] %>%
+  column_to_rownames("i")%>%
+  rownames())
+lasso_predictors_tp<-data.frame(x) %>%
+  dplyr::select(all_of(lasso_predictors_tp)) %>%
+  names()
+lasso_predictors_tp
+
+##Lastly, we can calculate the R-squared of the model on the training data:
+
+#use fitted best model to make predictions
+y_predicted <- predict(best_model1, s = best_lambda, newx = x, type="response")
+
+#find SST and SSE
+sst <- sum((y - mean(y))^2)
+sse <- sum((y_predicted - y)^2)
+
+#find R-Squared
+rsq_lasso_tp <- 1 - sse/sst
+rsq_lasso_tp <-  round(rsq_lasso_tp,2)
+
+#Plot the ground-truth outcomes vs. the predicted outcomes:
+# plot(y,y_predicted,pch = 20)
+# abline(coef = c(0,1))
+# 
+
+#Plot with ggplot
+tp_observed<-data.frame(y)
+tp_plot<-bind_cols(y_predicted,
+          tp_observed)
+colnames(tp_plot)[1:2] <- c("pred", "obs")
+tp_plot %>%
+  filter(obs>-3)%>% #for the sake of plotting
+  ggplot(aes(y=pred, x=obs))+
+  geom_point(shape=21,fill="black",alpha=0.3)+
+  xlab("Observed TP (log-transformed)")+
+  ylab("Lasso predicted TP (log-transformed)")+
+  geom_smooth(method="lm",se=FALSE,color="navy")+
+  theme_bw()+
+  geom_abline(intercept = 0, slope=1)+
+    annotate("text", x = 0, y = 2.5,
+  label = "paste(bold(R) ^ 2, \" = 0.2\")",
+  parse = TRUE,
+  color="navy")+
+
+  ggtitle("Lasso results ")
+
+
+```
+
+
+
