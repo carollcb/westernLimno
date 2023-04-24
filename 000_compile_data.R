@@ -703,7 +703,7 @@ summary(as.factor(dt4$nla2012_siteid))
 # in situ -----------------------------------------------------------------
 
 
-chemicalphysical<-read.csv("~/Dropbox/dropbox Research/Modelscape/modelscape/data/CL_LAGOSUS_exports/LAGOSUS_LIMNO/US/LIMNO_v2.1/site_chemicalphysical_epi.csv") %>%
+chemicalphysical<-read.csv("LIMNO_v2.1/site_chemicalphysical_epi.csv") %>%
   mutate(event_date=lubridate::ymd(event_date),
          year=lubridate::year(event_date),
          year=factor(year),
@@ -718,18 +718,18 @@ chemicalphysical<-read.csv("~/Dropbox/dropbox Research/Modelscape/modelscape/dat
 # dplyr::all_equal(chemicalphysical,chemicalphysical2)
 ##TRUE
 
-claritycarbon<-read.csv("~/Dropbox/dropbox Research/Modelscape/modelscape/data/CL_LAGOSUS_exports/LAGOSUS_LIMNO/US/LIMNO_v2.1/site_claritycarbon_epi.csv")%>%
+claritycarbon<-read.csv("LIMNO_v2.1/site_claritycarbon_epi.csv")%>%
   mutate(event_date=lubridate::ymd(event_date),
          year=lubridate::year(event_date),
          year=factor(year),
          lagoslakeid=factor(lagoslakeid))
-contaminants<-read.csv("~/Dropbox/dropbox Research/Modelscape/modelscape/data/CL_LAGOSUS_exports/LAGOSUS_LIMNO/US/LIMNO_v2.1/site_contaminants_epi.csv")%>%
+contaminants<-read.csv("LIMNO_v2.1/site_contaminants_epi.csv")%>%
   mutate(event_date=lubridate::ymd(event_date),
          year=lubridate::year(event_date),
          year=factor(year),
          lagoslakeid=factor(lagoslakeid))
 
-nutrientsalgae<-read.csv("~/Dropbox/dropbox Research/Modelscape/modelscape/data/CL_LAGOSUS_exports/LAGOSUS_LIMNO/US/LIMNO_v2.1/site_nutrientsalgae_epi.csv")%>%
+nutrientsalgae<-read.csv("LIMNO_v2.1/site_nutrientsalgae_epi.csv")%>%
   mutate(event_date=lubridate::ymd(event_date),
          year=lubridate::year(event_date),
          year=factor(year),
@@ -773,8 +773,7 @@ lakecharacteristics <- lakecharacteristics %>%
 chemicalphysical <- chemicalphysical %>%
   group_by(lagoslakeid, year) %>%
   summarise_at(c("ca_mgl","alk_ueql","do_mgl","ph_eq",
-                 "so4_mgl","temp_degc","salinity_mgl",
-                 "mg_mgl","spcond_uscm"), list(median = function(x) median(x,na.rm=T),
+                 "so4_mgl","temp_degc","salinity_mgl"), list(median = function(x) median(x,na.rm=T),
                                                max = function(x) max(x,na.rm=T),
                                                n=length))
 # names(claritycarbon)
@@ -805,8 +804,8 @@ nutrientsalgae <- nutrientsalgae %>%
 
 #Joining each data.table to lakeinformation which only has western states
 chemicalphysical<-merge(lakeinformation,chemicalphysical, no.dups=TRUE, by="lagoslakeid") 
-claritycarbon<-merge(lakeinformation,claritycarbon, no.dups=TRUE, by="lagoslakeid")
-contaminants<-merge(lakeinformation,contaminants, no.dups=TRUE, by="lagoslakeid")
+#claritycarbon<-merge(lakeinformation,claritycarbon, no.dups=TRUE, by="lagoslakeid")
+#contaminants<-merge(lakeinformation,contaminants, no.dups=TRUE, by="lagoslakeid")
 nutrientsalgae<-merge(lakeinformation,nutrientsalgae,  no.dups=TRUE, by="lagoslakeid")
 colnames<-(intersect( colnames(lakeinformation),  colnames(depth))) #identify common columns between data.tables
 depth<-merge(lakeinformation,depth, all.x=TRUE,  no.dups=TRUE, by=colnames)
@@ -817,14 +816,14 @@ lakecharacteristics<-merge(lakeinformation,lakecharacteristics,  no.dups=TRUE, b
 
 
 #Make one big dataframe, and join by all of the common columns ("colnames")
-colnames<-(intersect( colnames(chemicalphysical),  colnames(claritycarbon)))
-dt_limno<- merge(chemicalphysical,claritycarbon, all=TRUE,by=colnames) 
-colnames<-(intersect( colnames(dt_limno),  colnames(contaminants)))
-dt_limno<- merge(dt_limno,contaminants, all=TRUE,by=colnames) 
-colnames<-(intersect( colnames(dt_limno),  colnames(nutrientsalgae)))
-dt_limno<- merge(dt_limno,nutrientsalgae, all=TRUE,by=colnames) 
-colnames<-(intersect( colnames(dt_limno),  colnames(depth)))
-dt_limno<- merge(dt_limno,depth,by=colnames) 
+colnames<-(intersect( colnames(chemicalphysical),  colnames(nutrientsalgae)))
+dt_limno<- merge(chemicalphysical,nutrientsalgae, all=TRUE,by=colnames) 
+#colnames<-(intersect( colnames(dt_limno),  colnames(contaminants)))
+#dt_limno<- merge(dt_limno,contaminants, all=TRUE,by=colnames) 
+#colnames<-(intersect( colnames(dt_limno),  colnames(nutrientsalgae)))
+#dt_limno<- merge(dt_limno,nutrientsalgae, all=TRUE,by=colnames) 
+#colnames<-(intersect( colnames(dt_limno),  colnames(depth)))
+#dt_limno<- merge(dt_limno,depth,by=colnames) 
 
 colnames<-(intersect( colnames(dt_limno),  colnames(lakewatersheds)))
 dt_limno<- merge(dt_limno,lakewatersheds,all=TRUE,by=colnames) 
@@ -1357,15 +1356,15 @@ dt1_western_summary$year
 
 
 #IAO Sept 28 2021 -- since we are going to focus on TP and NO3, filter out NAs now
-# dt1_western_summary<-dt1_western_summary%>%
-#   filter(!(is.na(tp_ugl_median) &
-#            is.na(no2no3n_ugl_median))) 
+ dt1_western_summary<-dt1_western_summary%>%
+   filter(!(is.na(tp_ugl_median) &
+            is.na(tn_ugl_median))) 
 # 
-# dt1_western_summary_TP <- dt1_western_summary %>%
-#   filter(!is.na(tp_ugl_median)) 
+dt1_western_summary_TP <- dt1_western_summary %>%
+   filter(!is.na(tp_ugl_median)) 
 # 
-# dt1_western_summary_NO3 <- dt1_western_summary %>%
-#   filter(!is.na(no2no3n_ugl_median)) 
+ dt1_western_summary_TN <- dt1_western_summary %>%
+   filter(!is.na(tn_ugl_median)) 
 
 
 ## Add levels and labels for EPA zones 
