@@ -35,3 +35,4 @@ vignettes/*.pdf
 /MSR_50M
 # Ignore .html output
 *.html
+/LIMNO_v2.1
